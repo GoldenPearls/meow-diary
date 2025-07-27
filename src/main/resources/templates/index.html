@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${title}">MeowDiary</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- 네비게이션 바 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="fas fa-cat text-primary"></i>
+          <span class="ms-2">MeowDiary</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/cats">
+                <i class="fas fa-paw"></i> 내 고양이들
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/health">
+                <i class="fas fa-heartbeat"></i> 건강 기록
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/community">
+                <i class="fas fa-users"></i> 커뮤니티
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/ai-advice">
+                <i class="fas fa-robot"></i> AI 조언
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 히어로 섹션 -->
+    <section class="hero-section text-center py-5">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto">
+            <h1 class="display-4 mb-4">
+              <i class="fas fa-cat text-primary"></i>
+              MeowDiary
+            </h1>
+            <p class="lead mb-4">
+              고양이와 함께하는 건강한 일상을 기록해보세요
+            </p>
+            <div class="cat-animation mb-4">
+              <div class="cat-ears">
+                <div class="ear left-ear"></div>
+                <div class="ear right-ear"></div>
+              </div>
+              <div class="cat-face">
+                <div class="cat-eyes">
+                  <div class="eye left-eye"></div>
+                  <div class="eye right-eye"></div>
+                </div>
+                <div class="cat-nose"></div>
+                <div class="cat-mouth"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 기능 소개 섹션 -->
+    <section class="features-section py-5">
+      <div class="container">
+        <h2 class="text-center mb-5">주요 기능</h2>
+        <div class="row">
+          <div class="col-md-6 col-lg-3 mb-4">
+            <div class="feature-card text-center p-4">
+              <div class="feature-icon mb-3">
+                <i class="fas fa-paw fa-3x text-primary"></i>
+              </div>
+              <h4>고양이 프로필</h4>
+              <p>반려묘의 정보를 등록하고 관리하세요</p>
+              <a href="/cats" class="btn btn-outline-primary">시작하기</a>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3 mb-4">
+            <div class="feature-card text-center p-4">
+              <div class="feature-icon mb-3">
+                <i class="fas fa-heartbeat fa-3x text-success"></i>
+              </div>
+              <h4>건강 기록</h4>
+              <p>체중, 체온, 증상 등 건강 정보를 기록하세요</p>
+              <a href="/health" class="btn btn-outline-success">기록하기</a>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3 mb-4">
+            <div class="feature-card text-center p-4">
+              <div class="feature-icon mb-3">
+                <i class="fas fa-users fa-3x text-info"></i>
+              </div>
+              <h4>커뮤니티</h4>
+              <p>다른 고양이 집사들과 정보를 공유하세요</p>
+              <a href="/community" class="btn btn-outline-info">참여하기</a>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3 mb-4">
+            <div class="feature-card text-center p-4">
+              <div class="feature-icon mb-3">
+                <i class="fas fa-robot fa-3x text-warning"></i>
+              </div>
+              <h4>AI 조언</h4>
+              <p>AI가 고양이의 건강 상태를 분석해드려요</p>
+              <a href="/ai-advice" class="btn btn-outline-warning">상담받기</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 통계 섹션 -->
+    <section class="stats-section py-5 bg-light">
+      <div class="container">
+        <div class="row text-center">
+          <div class="col-md-3 mb-4">
+            <div class="stat-card">
+              <i class="fas fa-cat fa-2x text-primary mb-2"></i>
+              <h3 class="counter">1,234</h3>
+              <p>등록된 고양이</p>
+            </div>
+          </div>
+          <div class="col-md-3 mb-4">
+            <div class="stat-card">
+              <i class="fas fa-heartbeat fa-2x text-success mb-2"></i>
+              <h3 class="counter">5,678</h3>
+              <p>건강 기록</p>
+            </div>
+          </div>
+          <div class="col-md-3 mb-4">
+            <div class="stat-card">
+              <i class="fas fa-users fa-2x text-info mb-2"></i>
+              <h3 class="counter">890</h3>
+              <p>활성 사용자</p>
+            </div>
+          </div>
+          <div class="col-md-3 mb-4">
+            <div class="stat-card">
+              <i class="fas fa-robot fa-2x text-warning mb-2"></i>
+              <h3 class="counter">456</h3>
+              <p>AI 상담</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer class="bg-light mt-5 py-4">
+      <div class="container text-center">
+        <p class="mb-0">
+          <i class="fas fa-cat text-primary"></i>
+          MeowDiary - 고양이와 함께하는 건강한 일상 🐾
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+  </body>
+</html>

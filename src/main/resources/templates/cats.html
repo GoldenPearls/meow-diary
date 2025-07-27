@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${title}">내 고양이들 - MeowDiary</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- 네비게이션 바 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="fas fa-cat text-primary"></i>
+          <span class="ms-2">MeowDiary</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="/cats">
+                <i class="fas fa-paw"></i> 내 고양이들
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/health">
+                <i class="fas fa-heartbeat"></i> 건강 기록
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/community">
+                <i class="fas fa-users"></i> 커뮤니티
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/ai-advice">
+                <i class="fas fa-robot"></i> AI 조언
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="container mt-4">
+      <div class="row">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-paw text-primary"></i> 내 고양이들</h1>
+            <button
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#addCatModal"
+            >
+              <i class="fas fa-plus"></i> 고양이 추가
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 고양이 목록 -->
+      <div class="row" id="catsList">
+        <!-- 고양이 카드들이 여기에 동적으로 추가됩니다 -->
+      </div>
+
+      <!-- 고양이가 없을 때 표시할 메시지 -->
+      <div class="text-center py-5" id="noCatsMessage" style="display: none">
+        <i class="fas fa-cat fa-3x text-muted mb-3"></i>
+        <h3 class="text-muted">아직 등록된 고양이가 없어요</h3>
+        <p class="text-muted">첫 번째 고양이를 등록해보세요!</p>
+        <button
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#addCatModal"
+        >
+          <i class="fas fa-plus"></i> 고양이 추가하기
+        </button>
+      </div>
+    </main>
+
+    <!-- 고양이 추가 모달 -->
+    <div class="modal fade" id="addCatModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-cat text-primary"></i> 고양이 추가
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <form id="addCatForm">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="catName" class="form-label">이름 *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="catName"
+                  name="name"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="catBreed" class="form-label">품종</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="catBreed"
+                  name="breed"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="catColor" class="form-label">색상</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="catColor"
+                  name="color"
+                />
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="catBirthDate" class="form-label"
+                      >생년월일</label
+                    >
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="catBirthDate"
+                      name="birthDate"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="catWeight" class="form-label">체중 (kg)</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="catWeight"
+                      name="weight"
+                      step="0.1"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="catGender" class="form-label">성별</label>
+                    <select class="form-select" id="catGender" name="gender">
+                      <option value="">선택하세요</option>
+                      <option value="MALE">수컷</option>
+                      <option value="FEMALE">암컷</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <div class="form-check mt-4">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="catNeutered"
+                        name="isNeutered"
+                      />
+                      <label class="form-check-label" for="catNeutered">
+                        중성화 완료
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="catDescription" class="form-label">특이사항</label>
+                <textarea
+                  class="form-control"
+                  id="catDescription"
+                  name="description"
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                취소
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> 저장
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 고양이 상세 모달 -->
+    <div class="modal fade" id="catDetailModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-cat text-primary"></i>
+              <span id="catDetailName"></span>
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-4 text-center">
+                <div class="cat-avatar mb-3">
+                  <i class="fas fa-cat"></i>
+                </div>
+                <h4 id="catDetailName2"></h4>
+                <p class="text-muted" id="catDetailBreed"></p>
+              </div>
+              <div class="col-md-8">
+                <div class="row">
+                  <div class="col-6">
+                    <p>
+                      <strong>색상:</strong> <span id="catDetailColor"></span>
+                    </p>
+                    <p>
+                      <strong>생년월일:</strong>
+                      <span id="catDetailBirthDate"></span>
+                    </p>
+                    <p>
+                      <strong>체중:</strong> <span id="catDetailWeight"></span>
+                    </p>
+                  </div>
+                  <div class="col-6">
+                    <p>
+                      <strong>성별:</strong> <span id="catDetailGender"></span>
+                    </p>
+                    <p>
+                      <strong>중성화:</strong>
+                      <span id="catDetailNeutered"></span>
+                    </p>
+                    <p>
+                      <strong>등록일:</strong>
+                      <span id="catDetailCreatedAt"></span>
+                    </p>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <h6>특이사항</h6>
+                  <p id="catDetailDescription" class="text-muted"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              닫기
+            </button>
+            <button type="button" class="btn btn-warning" id="editCatBtn">
+              <i class="fas fa-edit"></i> 수정
+            </button>
+            <button type="button" class="btn btn-danger" id="deleteCatBtn">
+              <i class="fas fa-trash"></i> 삭제
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="bg-light mt-5 py-4">
+      <div class="container text-center">
+        <p class="mb-0">
+          <i class="fas fa-cat text-primary"></i>
+          MeowDiary - 고양이와 함께하는 건강한 일상 🐾
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+      // 고양이 데이터 (실제로는 API에서 가져옴)
+      let cats = [
+        {
+          id: 1,
+          name: "루시",
+          breed: "러시안블루",
+          color: "회색",
+          birthDate: "2020-03-15",
+          weight: 4.2,
+          gender: "FEMALE",
+          isNeutered: true,
+          description: "조용하고 예민한 고양이입니다.",
+          createdAt: "2023-01-15",
+        },
+        {
+          id: 2,
+          name: "토비",
+          breed: "아메리칸숏헤어",
+          color: "주황색",
+          birthDate: "2019-07-22",
+          weight: 5.1,
+          gender: "MALE",
+          isNeutered: false,
+          description: "활발하고 장난기 많은 고양이입니다.",
+          createdAt: "2023-02-10",
+        },
+      ];
+
+      // 고양이 목록 렌더링
+      function renderCats() {
+        const catsList = document.getElementById("catsList");
+        const noCatsMessage = document.getElementById("noCatsMessage");
+
+        if (cats.length === 0) {
+          catsList.style.display = "none";
+          noCatsMessage.style.display = "block";
+          return;
+        }
+
+        catsList.style.display = "flex";
+        noCatsMessage.style.display = "none";
+
+        catsList.innerHTML = cats
+          .map(
+            (cat) => `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="cat-card p-4 h-100">
+                        <div class="cat-avatar">
+                            <i class="fas fa-cat"></i>
+                        </div>
+                        <h5 class="text-center mb-3">${cat.name}</h5>
+                        <div class="text-center mb-3">
+                            <span class="badge bg-primary me-2">${
+                              cat.breed || "품종 미상"
+                            }</span>
+                            <span class="badge bg-secondary">${
+                              cat.color || "색상 미상"
+                            }</span>
+                        </div>
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <small class="text-muted">체중</small>
+                                <div><strong>${
+                                  cat.weight || "?"
+                                }kg</strong></div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">나이</small>
+                                <div><strong>${calculateAge(
+                                  cat.birthDate
+                                )}</strong></div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="viewCatDetail(${
+                              cat.id
+                            })">
+                                <i class="fas fa-eye"></i> 상세보기
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" onclick="addHealthRecord(${
+                              cat.id
+                            })">
+                                <i class="fas fa-heartbeat"></i> 건강기록
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      // 나이 계산
+      function calculateAge(birthDate) {
+        if (!birthDate) return "?";
+        const birth = new Date(birthDate);
+        const today = new Date();
+        const age = today.getFullYear() - birth.getFullYear();
+        return `${age}세`;
+      }
+
+      // 고양이 상세보기
+      function viewCatDetail(catId) {
+        const cat = cats.find((c) => c.id === catId);
+        if (!cat) return;
+
+        document.getElementById("catDetailName").textContent = cat.name;
+        document.getElementById("catDetailName2").textContent = cat.name;
+        document.getElementById("catDetailBreed").textContent =
+          cat.breed || "품종 미상";
+        document.getElementById("catDetailColor").textContent =
+          cat.color || "색상 미상";
+        document.getElementById("catDetailBirthDate").textContent =
+          cat.birthDate || "미상";
+        document.getElementById("catDetailWeight").textContent = cat.weight
+          ? `${cat.weight}kg`
+          : "미상";
+        document.getElementById("catDetailGender").textContent =
+          cat.gender === "MALE"
+            ? "수컷"
+            : cat.gender === "FEMALE"
+            ? "암컷"
+            : "미상";
+        document.getElementById("catDetailNeutered").textContent =
+          cat.isNeutered ? "완료" : "미완료";
+        document.getElementById("catDetailCreatedAt").textContent =
+          cat.createdAt;
+        document.getElementById("catDetailDescription").textContent =
+          cat.description || "특이사항 없음";
+
+        const modal = new bootstrap.Modal(
+          document.getElementById("catDetailModal")
+        );
+        modal.show();
+      }
+
+      // 건강 기록 추가
+      function addHealthRecord(catId) {
+        showToast("건강 기록 페이지로 이동합니다...", "info");
+        setTimeout(() => {
+          window.location.href = `/health?catId=${catId}`;
+        }, 1000);
+      }
+
+      // 고양이 추가 폼 제출
+      document
+        .getElementById("addCatForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const formData = new FormData(this);
+          const newCat = {
+            id: cats.length + 1,
+            name: formData.get("name"),
+            breed: formData.get("breed"),
+            color: formData.get("color"),
+            birthDate: formData.get("birthDate"),
+            weight: parseFloat(formData.get("weight")) || null,
+            gender: formData.get("gender"),
+            isNeutered: formData.get("isNeutered") === "on",
+            description: formData.get("description"),
+            createdAt: new Date().toISOString().split("T")[0],
+          };
+
+          cats.push(newCat);
+          renderCats();
+
+          // 모달 닫기
+          const modal = bootstrap.Modal.getInstance(
+            document.getElementById("addCatModal")
+          );
+          modal.hide();
+
+          // 폼 초기화
+          this.reset();
+
+          showToast(`${newCat.name}이(가) 추가되었습니다!`, "success");
+        });
+
+      // 페이지 로드 시 고양이 목록 렌더링
+      document.addEventListener("DOMContentLoaded", function () {
+        renderCats();
+      });
+    </script>
+  </body>
+</html>
