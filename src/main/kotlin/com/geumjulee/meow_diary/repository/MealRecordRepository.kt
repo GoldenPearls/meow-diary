@@ -10,9 +10,11 @@ import java.time.LocalDateTime
 @Repository
 interface MealRecordRepository : JpaRepository<MealRecord, Long> {
     
-    fun findByCatId(catId: Long): List<MealRecord>
+    @Query("SELECT mr FROM MealRecord mr WHERE mr.cat.id = :catId")
+    fun findByCatId(@Param("catId") catId: Long): List<MealRecord>
     
-    fun findByCatIdOrderByMealDateDesc(catId: Long): List<MealRecord>
+    @Query("SELECT mr FROM MealRecord mr WHERE mr.cat.id = :catId ORDER BY mr.mealDate DESC")
+    fun findByCatIdOrderByMealDateDesc(@Param("catId") catId: Long): List<MealRecord>
     
     fun findByFoodType(foodType: String): List<MealRecord>
     

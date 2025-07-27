@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${title}">냥이와의 일일 기록 - MeowDiary</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div th:replace="~{layout :: content}">
+      <!-- 헤더 섹션 -->
+      <div class="hero-section text-center py-5">
+        <div class="container">
+          <h1 class="display-4 mb-4">
+            <i class="fas fa-calendar-heart text-primary"></i>
+            냥이와의 일일 기록
+          </h1>
+          <p class="lead text-muted">
+            매일매일 냥이와 함께한 특별한 순간들을 기록해보세요
+          </p>
+        </div>
+      </div>
+
+      <!-- 메인 콘텐츠 -->
+      <div class="container mt-4">
+        <!-- 고양이 선택 -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label for="catSelect" class="form-label">
+              <i class="fas fa-cat"></i> 고양이 선택
+            </label>
+            <select class="form-select" id="catSelect">
+              <option value="">고양이를 선택하세요</option>
+              <option value="1">루시 (러시안블루)</option>
+              <option value="2">미미 (페르시안)</option>
+              <option value="3">나비 (코리안숏헤어)</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="recordDate" class="form-label">
+              <i class="fas fa-calendar"></i> 기록 날짜
+            </label>
+            <input type="date" class="form-control" id="recordDate" value="" />
+          </div>
+        </div>
+
+        <!-- 새 기록 추가 버튼 -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <button
+              class="btn btn-primary btn-lg"
+              data-bs-toggle="modal"
+              data-bs-target="#addRecordModal"
+            >
+              <i class="fas fa-plus"></i> 새 기록 추가
+            </button>
+          </div>
+        </div>
+
+        <!-- 기록 목록 -->
+        <div class="row" id="recordsList">
+          <!-- 기록 카드들이 여기에 동적으로 추가됩니다 -->
+        </div>
+
+        <!-- 기록이 없을 때 -->
+        <div
+          class="text-center py-5"
+          id="noRecordsMessage"
+          style="display: none"
+        >
+          <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+          <h4 class="text-muted">아직 기록이 없어요</h4>
+          <p class="text-muted">첫 번째 기록을 추가해보세요!</p>
+        </div>
+      </div>
+
+      <!-- 새 기록 추가 모달 -->
+      <div class="modal fade" id="addRecordModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <i class="fas fa-calendar-plus"></i> 새 일일 기록
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <form id="addRecordForm">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="recordTitle" class="form-label">제목 *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="recordTitle"
+                      required
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="recordMood" class="form-label">냥이 기분</label>
+                    <select class="form-select" id="recordMood">
+                      <option value="">기분 선택</option>
+                      <option value="VERY_HAPPY">매우 행복해요 😊</option>
+                      <option value="HAPPY">행복해요 😸</option>
+                      <option value="NORMAL">보통이에요 😺</option>
+                      <option value="SAD">슬퍼요 😿</option>
+                      <option value="ANGRY">화나요 😾</option>
+                      <option value="EXCITED">신나요 😸</option>
+                      <option value="CALM">차분해요 😌</option>
+                      <option value="PLAYFUL">장난꾸러기 😺</option>
+                      <option value="SLEEPY">졸려요 😴</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="recordActivity" class="form-label">활동</label>
+                    <select class="form-select" id="recordActivity">
+                      <option value="">활동 선택</option>
+                      <option value="PLAYING">놀기 🎾</option>
+                      <option value="SLEEPING">잠자기 😴</option>
+                      <option value="EATING">밥 먹기 🍽️</option>
+                      <option value="GROOMING">그루밍 🛁</option>
+                      <option value="EXPLORING">탐험하기 🔍</option>
+                      <option value="CUDDLING">스킨십 💕</option>
+                      <option value="TRAINING">훈련 🎯</option>
+                      <option value="VET_VISIT">병원 🏥</option>
+                      <option value="OUTDOOR_TIME">외출 🌳</option>
+                      <option value="RESTING">휴식 😌</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="recordWeather" class="form-label">날씨</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="recordWeather"
+                      placeholder="맑음, 흐림, 비 등"
+                    />
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="recordContent" class="form-label"
+                    >오늘의 이야기</label
+                  >
+                  <textarea
+                    class="form-control"
+                    id="recordContent"
+                    rows="4"
+                    placeholder="오늘 냥이와 함께한 특별한 순간들을 기록해보세요..."
+                  ></textarea>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="recordTemperature" class="form-label"
+                      >기온 (°C)</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="recordTemperature"
+                      step="0.1"
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="recordTags" class="form-label">태그</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="recordTags"
+                      placeholder="쉼표로 구분 (예: 특별한날, 장난감, 산책)"
+                    />
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="recordSpecialNotes" class="form-label"
+                    >특별 메모</label
+                  >
+                  <textarea
+                    class="form-control"
+                    id="recordSpecialNotes"
+                    rows="2"
+                    placeholder="특별히 기록하고 싶은 내용이 있다면..."
+                  ></textarea>
+                </div>
+                <div class="mb-3">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="recordImportant"
+                    />
+                    <label class="form-check-label" for="recordImportant">
+                      <i class="fas fa-star text-warning"></i> 중요한 기록으로
+                      표시
+                    </label>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="recordImages" class="form-label">
+                    <i class="fas fa-camera"></i> 사진 추가
+                  </label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="recordImages"
+                    multiple
+                    accept="image/*"
+                  />
+                  <div class="form-text">
+                    여러 장의 사진을 선택할 수 있습니다.
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="saveRecord()"
+              >
+                <i class="fas fa-save"></i> 기록 저장
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 기록 상세 보기 모달 -->
+      <div class="modal fade" id="recordDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <i class="fas fa-calendar-check"></i> 기록 상세보기
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body" id="recordDetailContent">
+              <!-- 기록 상세 내용이 여기에 표시됩니다 -->
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                닫기
+              </button>
+              <button
+                type="button"
+                class="btn btn-warning"
+                onclick="editRecord()"
+              >
+                <i class="fas fa-edit"></i> 수정
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger"
+                onclick="deleteRecord()"
+              >
+                <i class="fas fa-trash"></i> 삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+      // 오늘 날짜를 기본값으로 설정
+      document.getElementById("recordDate").value = new Date()
+        .toISOString()
+        .split("T")[0];
+
+      // 샘플 데이터
+      let dailyRecords = [
+        {
+          id: 1,
+          catId: 1,
+          catName: "루시",
+          recordDate: "2025-07-27",
+          title: "오늘은 정말 행복한 하루였어요",
+          content:
+            "루시가 오늘은 정말 활발하게 놀았어요. 새 장난감을 사줬는데 너무 좋아하네요!",
+          mood: "VERY_HAPPY",
+          activityType: "PLAYING",
+          weather: "맑음",
+          temperature: 25.5,
+          specialNotes: "새 장난감 구매 - 루시가 정말 좋아함",
+          isImportant: true,
+          tags: "장난감,행복한날,새것",
+          imageUrls: ["/images/cat1.jpg", "/images/cat2.jpg"],
+        },
+        {
+          id: 2,
+          catId: 1,
+          catName: "루시",
+          recordDate: "2025-07-26",
+          title: "푹 잔 루시",
+          content:
+            "오늘은 하루 종일 푹 잤어요. 아마 어제 너무 놀아서 피곤한 것 같아요.",
+          mood: "SLEEPY",
+          activityType: "SLEEPING",
+          weather: "흐림",
+          temperature: 22.0,
+          specialNotes: "평소보다 많이 잠",
+          isImportant: false,
+          tags: "잠,휴식",
+          imageUrls: [],
+        },
+      ];
+
+      // 기록 목록 렌더링
+      function renderRecords() {
+        const recordsList = document.getElementById("recordsList");
+        const noRecordsMessage = document.getElementById("noRecordsMessage");
+        const selectedCat = document.getElementById("catSelect").value;
+        const selectedDate = document.getElementById("recordDate").value;
+
+        let filteredRecords = dailyRecords;
+
+        // 고양이 필터링
+        if (selectedCat) {
+          filteredRecords = filteredRecords.filter(
+            (record) => record.catId == selectedCat
+          );
+        }
+
+        // 날짜 필터링
+        if (selectedDate) {
+          filteredRecords = filteredRecords.filter(
+            (record) => record.recordDate === selectedDate
+          );
+        }
+
+        if (filteredRecords.length === 0) {
+          recordsList.innerHTML = "";
+          noRecordsMessage.style.display = "block";
+          return;
+        }
+
+        noRecordsMessage.style.display = "none";
+        recordsList.innerHTML = filteredRecords
+          .map(
+            (record) => `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 record-card ${
+                      record.isImportant ? "border-warning" : ""
+                    }" onclick="viewRecordDetail(${record.id})">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title mb-0">${record.title}</h6>
+                                ${
+                                  record.isImportant
+                                    ? '<i class="fas fa-star text-warning"></i>'
+                                    : ""
+                                }
+                            </div>
+                            <p class="card-text text-muted small">${
+                              record.recordDate
+                            }</p>
+                            <p class="card-text">${record.content.substring(
+                              0,
+                              100
+                            )}${record.content.length > 100 ? "..." : ""}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary">${
+                                  record.catName
+                                }</span>
+                                <div class="mood-indicator">
+                                    ${getMoodIcon(record.mood)}
+                                </div>
+                            </div>
+                            ${
+                              record.imageUrls.length > 0
+                                ? `
+                                <div class="mt-2">
+                                    <i class="fas fa-camera text-muted"></i>
+                                    <small class="text-muted">${record.imageUrls.length}장의 사진</small>
+                                </div>
+                            `
+                                : ""
+                            }
+                        </div>
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      // 기분 아이콘 반환
+      function getMoodIcon(mood) {
+        const moodIcons = {
+          VERY_HAPPY: "😊",
+          HAPPY: "😸",
+          NORMAL: "😺",
+          SAD: "😿",
+          ANGRY: "😾",
+          EXCITED: "😸",
+          CALM: "😌",
+          PLAYFUL: "😺",
+          SLEEPY: "😴",
+        };
+        return moodIcons[mood] || "😺";
+      }
+
+      // 기록 저장
+      function saveRecord() {
+        const formData = {
+          catId: document.getElementById("catSelect").value,
+          recordDate: document.getElementById("recordDate").value,
+          title: document.getElementById("recordTitle").value,
+          content: document.getElementById("recordContent").value,
+          mood: document.getElementById("recordMood").value,
+          activityType: document.getElementById("recordActivity").value,
+          weather: document.getElementById("recordWeather").value,
+          temperature:
+            parseFloat(document.getElementById("recordTemperature").value) ||
+            null,
+          specialNotes: document.getElementById("recordSpecialNotes").value,
+          isImportant: document.getElementById("recordImportant").checked,
+          tags: document.getElementById("recordTags").value,
+        };
+
+        // 유효성 검사
+        if (!formData.catId) {
+          showToast("고양이를 선택해주세요.", "warning");
+          return;
+        }
+        if (!formData.title) {
+          showToast("제목을 입력해주세요.", "warning");
+          return;
+        }
+
+        // 새 기록 추가 (실제로는 API 호출)
+        const newRecord = {
+          id: dailyRecords.length + 1,
+          catId: parseInt(formData.catId),
+          catName: document
+            .getElementById("catSelect")
+            .options[
+              document.getElementById("catSelect").selectedIndex
+            ].text.split(" ")[0],
+          recordDate: formData.recordDate,
+          title: formData.title,
+          content: formData.content,
+          mood: formData.mood,
+          activityType: formData.activityType,
+          weather: formData.weather,
+          temperature: formData.temperature,
+          specialNotes: formData.specialNotes,
+          isImportant: formData.isImportant,
+          tags: formData.tags,
+          imageUrls: [],
+        };
+
+        dailyRecords.unshift(newRecord);
+        renderRecords();
+
+        // 모달 닫기
+        const modal = bootstrap.Modal.getInstance(
+          document.getElementById("addRecordModal")
+        );
+        modal.hide();
+
+        // 폼 초기화
+        document.getElementById("addRecordForm").reset();
+        document.getElementById("recordDate").value = new Date()
+          .toISOString()
+          .split("T")[0];
+
+        showToast("기록이 성공적으로 저장되었습니다!", "success");
+      }
+
+      // 기록 상세 보기
+      function viewRecordDetail(recordId) {
+        const record = dailyRecords.find((r) => r.id === recordId);
+        if (!record) return;
+
+        const detailContent = document.getElementById("recordDetailContent");
+        detailContent.innerHTML = `
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>${record.title}</h5>
+                        <p class="text-muted">${record.recordDate} - ${
+          record.catName
+        }</p>
+                        <p>${record.content}</p>
+                        ${
+                          record.specialNotes
+                            ? `<p><strong>특별 메모:</strong> ${record.specialNotes}</p>`
+                            : ""
+                        }
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>기록 정보</h6>
+                                <p><strong>기분:</strong> ${getMoodIcon(
+                                  record.mood
+                                )} ${getMoodText(record.mood)}</p>
+                                <p><strong>활동:</strong> ${getActivityText(
+                                  record.activityType
+                                )}</p>
+                                ${
+                                  record.weather
+                                    ? `<p><strong>날씨:</strong> ${record.weather}</p>`
+                                    : ""
+                                }
+                                ${
+                                  record.temperature
+                                    ? `<p><strong>기온:</strong> ${record.temperature}°C</p>`
+                                    : ""
+                                }
+                                ${
+                                  record.tags
+                                    ? `<p><strong>태그:</strong> ${record.tags}</p>`
+                                    : ""
+                                }
+                                ${
+                                  record.isImportant
+                                    ? '<p><strong><i class="fas fa-star text-warning"></i> 중요한 기록</strong></p>'
+                                    : ""
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ${
+                  record.imageUrls.length > 0
+                    ? `
+                    <div class="mt-3">
+                        <h6>사진</h6>
+                        <div class="row">
+                            ${record.imageUrls
+                              .map(
+                                (url) => `
+                                <div class="col-md-4 mb-2">
+                                    <img src="${url}" class="img-fluid rounded" alt="기록 사진">
+                                </div>
+                            `
+                              )
+                              .join("")}
+                        </div>
+                    </div>
+                `
+                    : ""
+                }
+            `;
+
+        // 현재 기록 ID를 모달에 저장
+        document
+          .getElementById("recordDetailModal")
+          .setAttribute("data-record-id", recordId);
+
+        const modal = new bootstrap.Modal(
+          document.getElementById("recordDetailModal")
+        );
+        modal.show();
+      }
+
+      // 기분 텍스트 반환
+      function getMoodText(mood) {
+        const moodTexts = {
+          VERY_HAPPY: "매우 행복해요",
+          HAPPY: "행복해요",
+          NORMAL: "보통이에요",
+          SAD: "슬퍼요",
+          ANGRY: "화나요",
+          EXCITED: "신나요",
+          CALM: "차분해요",
+          PLAYFUL: "장난꾸러기",
+          SLEEPY: "졸려요",
+        };
+        return moodTexts[mood] || "보통이에요";
+      }
+
+      // 활동 텍스트 반환
+      function getActivityText(activity) {
+        const activityTexts = {
+          PLAYING: "놀기",
+          SLEEPING: "잠자기",
+          EATING: "밥 먹기",
+          GROOMING: "그루밍",
+          EXPLORING: "탐험하기",
+          CUDDLING: "스킨십",
+          TRAINING: "훈련",
+          VET_VISIT: "병원",
+          OUTDOOR_TIME: "외출",
+          RESTING: "휴식",
+        };
+        return activityTexts[activity] || "기타";
+      }
+
+      // 기록 수정
+      function editRecord() {
+        const recordId = parseInt(
+          document
+            .getElementById("recordDetailModal")
+            .getAttribute("data-record-id")
+        );
+        const record = dailyRecords.find((r) => r.id === recordId);
+        if (!record) return;
+
+        // 폼에 데이터 채우기
+        document.getElementById("catSelect").value = record.catId;
+        document.getElementById("recordDate").value = record.recordDate;
+        document.getElementById("recordTitle").value = record.title;
+        document.getElementById("recordContent").value = record.content;
+        document.getElementById("recordMood").value = record.mood;
+        document.getElementById("recordActivity").value = record.activityType;
+        document.getElementById("recordWeather").value = record.weather || "";
+        document.getElementById("recordTemperature").value =
+          record.temperature || "";
+        document.getElementById("recordSpecialNotes").value =
+          record.specialNotes || "";
+        document.getElementById("recordImportant").checked = record.isImportant;
+        document.getElementById("recordTags").value = record.tags || "";
+
+        // 모달 닫기
+        const detailModal = bootstrap.Modal.getInstance(
+          document.getElementById("recordDetailModal")
+        );
+        detailModal.hide();
+
+        // 편집 모달 열기
+        const addModal = new bootstrap.Modal(
+          document.getElementById("addRecordModal")
+        );
+        addModal.show();
+
+        showToast("기록을 수정할 수 있습니다.", "info");
+      }
+
+      // 기록 삭제
+      function deleteRecord() {
+        const recordId = parseInt(
+          document
+            .getElementById("recordDetailModal")
+            .getAttribute("data-record-id")
+        );
+
+        if (confirm("정말로 이 기록을 삭제하시겠습니까?")) {
+          dailyRecords = dailyRecords.filter((r) => r.id !== recordId);
+          renderRecords();
+
+          const modal = bootstrap.Modal.getInstance(
+            document.getElementById("recordDetailModal")
+          );
+          modal.hide();
+
+          showToast("기록이 삭제되었습니다.", "success");
+        }
+      }
+
+      // 이벤트 리스너
+      document.addEventListener("DOMContentLoaded", function () {
+        renderRecords();
+
+        // 고양이 선택 변경 시
+        document
+          .getElementById("catSelect")
+          .addEventListener("change", renderRecords);
+
+        // 날짜 변경 시
+        document
+          .getElementById("recordDate")
+          .addEventListener("change", renderRecords);
+      });
+    </script>
+  </body>
+</html>

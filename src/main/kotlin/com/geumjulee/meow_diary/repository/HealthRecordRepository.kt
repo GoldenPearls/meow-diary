@@ -10,9 +10,11 @@ import java.time.LocalDateTime
 @Repository
 interface HealthRecordRepository : JpaRepository<HealthRecord, Long> {
     
-    fun findByCatId(catId: Long): List<HealthRecord>
+    @Query("SELECT hr FROM HealthRecord hr WHERE hr.cat.id = :catId")
+    fun findByCatId(@Param("catId") catId: Long): List<HealthRecord>
     
-    fun findByCatIdOrderByRecordDateDesc(catId: Long): List<HealthRecord>
+    @Query("SELECT hr FROM HealthRecord hr WHERE hr.cat.id = :catId ORDER BY hr.recordDate DESC")
+    fun findByCatIdOrderByRecordDateDesc(@Param("catId") catId: Long): List<HealthRecord>
     
     fun findByHealthStatus(healthStatus: String): List<HealthRecord>
     

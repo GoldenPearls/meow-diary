@@ -70,7 +70,7 @@ class FileUtil {
         return file.size
     }
     
-    private fun generateUniqueFileName(originalFileName: String?): String {
+    fun generateUniqueFileName(originalFileName: String?): String {
         val extension = originalFileName?.let { getFileExtension(it) } ?: ""
         val uuid = UUID.randomUUID().toString()
         return if (extension.isNotEmpty()) {

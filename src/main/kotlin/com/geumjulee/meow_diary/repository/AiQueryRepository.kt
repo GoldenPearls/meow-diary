@@ -9,9 +9,11 @@ import org.springframework.stereotype.Repository
 @Repository
 interface AiQueryRepository : JpaRepository<AiQuery, Long> {
     
-    fun findByUserId(userId: Long): List<AiQuery>
+    @Query("SELECT aq FROM AiQuery aq WHERE aq.user.id = :userId")
+    fun findByUserId(@Param("userId") userId: Long): List<AiQuery>
     
-    fun findByCatId(catId: Long): List<AiQuery>
+    @Query("SELECT aq FROM AiQuery aq WHERE aq.cat.id = :catId")
+    fun findByCatId(@Param("catId") catId: Long): List<AiQuery>
     
     fun findByStatus(status: String): List<AiQuery>
     
