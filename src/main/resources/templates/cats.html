@@ -52,6 +52,24 @@
                 <i class="fas fa-robot"></i> AI 조언
               </a>
             </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="userDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-user"></i> <span id="username">사용자</span>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> 로그아웃
+                  </a>
+                </li>
+              </ul>
+            </li>
           </ul>
         </div>
       </div>
@@ -310,33 +328,45 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/app.js"></script>
     <script>
-      // 고양이 데이터 (실제로는 API에서 가져옴)
-      let cats = [
-        {
-          id: 1,
-          name: "루시",
-          breed: "러시안블루",
-          color: "회색",
-          birthDate: "2020-03-15",
-          weight: 4.2,
-          gender: "FEMALE",
-          isNeutered: true,
-          description: "조용하고 예민한 고양이입니다.",
-          createdAt: "2023-01-15",
-        },
-        {
-          id: 2,
-          name: "토비",
-          breed: "아메리칸숏헤어",
-          color: "주황색",
-          birthDate: "2019-07-22",
-          weight: 5.1,
-          gender: "MALE",
-          isNeutered: false,
-          description: "활발하고 장난기 많은 고양이입니다.",
-          createdAt: "2023-02-10",
-        },
-      ];
+      // 고양이 데이터
+      let cats = [];
+      let currentUserId = localStorage.getItem("userId");
+
+      // 인증 확인
+      function checkAuth() {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          showToast("로그인이 필요합니다.", "error");
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 1500);
+          return false;
+        }
+        return true;
+      }
+
+      // 고양이 목록 가져오기
+      async function loadCats() {
+        if (!checkAuth()) return;
+
+        try {
+          const response = await fetch(`/api/cats/user/${currentUserId}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          });
+
+          if (response.ok) {
+            cats = await response.json();
+            renderCats();
+          } else {
+            showToast("고양이 목록을 불러오는데 실패했습니다.", "error");
+          }
+        } catch (error) {
+          console.error("Error loading cats:", error);
+          showToast("고양이 목록을 불러오는데 실패했습니다.", "error");
+        }
+      }
 
       // 고양이 목록 렌더링
       function renderCats() {
@@ -457,41 +487,80 @@
       // 고양이 추가 폼 제출
       document
         .getElementById("addCatForm")
-        .addEventListener("submit", function (e) {
+        .addEventListener("submit", async function (e) {
           e.preventDefault();
 
+          if (!checkAuth()) return;
+
           const formData = new FormData(this);
-          const newCat = {
-            id: cats.length + 1,
+          const catData = {
             name: formData.get("name"),
-            breed: formData.get("breed"),
-            color: formData.get("color"),
-            birthDate: formData.get("birthDate"),
+            breed: formData.get("breed") || null,
+            color: formData.get("color") || null,
+            birthDate: formData.get("birthDate") || null,
             weight: parseFloat(formData.get("weight")) || null,
-            gender: formData.get("gender"),
+            gender: formData.get("gender") || null,
             isNeutered: formData.get("isNeutered") === "on",
-            description: formData.get("description"),
-            createdAt: new Date().toISOString().split("T")[0],
+            description: formData.get("description") || null,
           };
 
-          cats.push(newCat);
-          renderCats();
+          try {
+            const response = await fetch(`/api/cats?userId=${currentUserId}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+              },
+              body: JSON.stringify(catData),
+            });
 
-          // 모달 닫기
-          const modal = bootstrap.Modal.getInstance(
-            document.getElementById("addCatModal")
-          );
-          modal.hide();
+            if (response.ok) {
+              const newCat = await response.json();
+              cats.push(newCat);
+              renderCats();
 
-          // 폼 초기화
-          this.reset();
+              // 모달 닫기
+              const modal = bootstrap.Modal.getInstance(
+                document.getElementById("addCatModal")
+              );
+              modal.hide();
 
-          showToast(`${newCat.name}이(가) 추가되었습니다!`, "success");
+              // 폼 초기화
+              this.reset();
+
+              showToast(`${newCat.name}이(가) 추가되었습니다!`, "success");
+            } else {
+              showToast("고양이 추가에 실패했습니다.", "error");
+            }
+          } catch (error) {
+            console.error("Error adding cat:", error);
+            showToast("고양이 추가에 실패했습니다.", "error");
+          }
         });
+
+      // 로그아웃 함수
+      function logout() {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("username");
+        showToast("로그아웃되었습니다.", "info");
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 1000);
+      }
+
+      // 사용자 정보 표시
+      function displayUserInfo() {
+        const username = localStorage.getItem("username");
+        if (username) {
+          document.getElementById("username").textContent = username;
+        }
+      }
 
       // 페이지 로드 시 고양이 목록 렌더링
       document.addEventListener("DOMContentLoaded", function () {
-        renderCats();
+        displayUserInfo();
+        loadCats();
       });
     </script>
   </body>

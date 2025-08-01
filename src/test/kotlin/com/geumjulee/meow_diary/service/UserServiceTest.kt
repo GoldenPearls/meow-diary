@@ -36,7 +36,8 @@ class UserServiceTest {
             username = "testuser"
             email = "test@example.com"
             password = "encodedPassword"
-            nickname = "TestUser"
+            firstName = "테스트"
+            lastName = "사용자"
             role = UserRole.USER
             isActive = true
         }
@@ -45,7 +46,8 @@ class UserServiceTest {
             username = "testuser",
             email = "test@example.com",
             password = "password123",
-            nickname = "TestUser"
+            firstName = "테스트",
+            lastName = "사용자"
         )
     }
 
@@ -64,8 +66,8 @@ class UserServiceTest {
         assertNotNull(result)
         assertEquals("testuser", result.username)
         assertEquals("test@example.com", result.email)
-        assertEquals("TestUser", result.nickname)
-        assertEquals(UserRole.USER, result.role)
+        assertEquals("테스트", result.firstName)
+        assertEquals("사용자", result.lastName)
         assertTrue(result.isActive)
 
         verify(userRepository).existsByUsername("testuser")
@@ -83,7 +85,7 @@ class UserServiceTest {
         val exception = assertThrows(IllegalArgumentException::class.java) {
             userService.registerUser(registrationRequest)
         }
-        assertEquals("이미 존재하는 사용자명입니다", exception.message)
+        assertEquals("이미 존재하는 아이디입니다", exception.message)
 
         verify(userRepository).existsByUsername("testuser")
         verify(userRepository, never()).save(any(User::class.java))

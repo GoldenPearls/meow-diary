@@ -13,6 +13,18 @@ class WebController {
         return "index"
     }
 
+    @GetMapping("/login")
+    fun login(model: Model): String {
+        model.addAttribute("title", "로그인 - MeowDiary")
+        return "login"
+    }
+
+    @GetMapping("/register")
+    fun register(model: Model): String {
+        model.addAttribute("title", "회원가입 - MeowDiary")
+        return "register"
+    }
+
     @GetMapping("/cats")
     fun cats(model: Model): String {
         model.addAttribute("title", "내 고양이들 - MeowDiary")

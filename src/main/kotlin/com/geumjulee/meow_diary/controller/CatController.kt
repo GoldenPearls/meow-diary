@@ -17,6 +17,7 @@ class CatController(
     
     @PostMapping
     fun createCat(@RequestParam userId: Long, @Valid @RequestBody request: CatCreateRequest): ResponseEntity<CatResponse> {
+        // TODO: 실제로는 토큰에서 사용자 ID를 추출해야 함
         val cat = catService.createCat(userId, request)
         return ResponseEntity.status(HttpStatus.CREATED).body(cat)
     }

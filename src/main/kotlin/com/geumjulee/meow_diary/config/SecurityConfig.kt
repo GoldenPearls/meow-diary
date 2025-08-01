@@ -28,6 +28,8 @@ class SecurityConfig {
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers("/h2-console/**").permitAll()
                     .requestMatchers("/").permitAll()
+                    .requestMatchers("/login").permitAll()
+                    .requestMatchers("/register").permitAll()
                     .requestMatchers("/cats").permitAll()
                     .requestMatchers("/health").permitAll()
                     .requestMatchers("/community").permitAll()
@@ -35,6 +37,7 @@ class SecurityConfig {
                     .requestMatchers("/css/**").permitAll()
                     .requestMatchers("/js/**").permitAll()
                     .requestMatchers("/images/**").permitAll()
+                    .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/api/users/register").permitAll()
                     .requestMatchers("/api/health-records/**").permitAll()
                     .requestMatchers("/api/cats/**").permitAll()

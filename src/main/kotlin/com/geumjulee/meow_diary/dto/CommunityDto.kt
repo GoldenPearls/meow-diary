@@ -32,7 +32,7 @@ data class PostResponse(
     val isPinned: Boolean,
     val userId: Long,
     val username: String,
-    val userNickname: String?,
+    val userFullName: String?,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime
 ) {
@@ -49,7 +49,7 @@ data class PostResponse(
                 isPinned = post.isPinned,
                 userId = post.user?.id ?: 0,
                 username = post.user?.username ?: "",
-                userNickname = post.user?.nickname,
+                userFullName = "${post.user?.firstName ?: ""} ${post.user?.lastName ?: ""}".trim(),
                 createdAt = post.createdAt,
                 updatedAt = post.updatedAt
             )
@@ -74,7 +74,7 @@ data class CommentResponse(
     val likeCount: Int,
     val userId: Long,
     val username: String,
-    val userNickname: String?,
+    val userFullName: String?,
     val parentCommentId: Long?,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime
@@ -88,6 +88,6 @@ data class PostSummaryResponse(
     val likeCount: Int,
     val commentCount: Int,
     val username: String,
-    val userNickname: String?,
+    val userFullName: String?,
     val createdAt: LocalDateTime
 ) 

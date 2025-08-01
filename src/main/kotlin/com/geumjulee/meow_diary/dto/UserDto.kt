@@ -8,42 +8,53 @@ import jakarta.validation.constraints.Size
 import java.time.LocalDateTime
 
 data class UserRegistrationRequest(
-    @field:NotBlank(message = "사용자명은 필수입니다")
-    @field:Size(min = 2, max = 50, message = "사용자명은 2-50자 사이여야 합니다")
+    @field:NotBlank(message = "아이디는 필수입니다")
+    @field:Size(min = 3, max = 20, message = "아이디는 3-20자 사이여야 합니다")
     val username: String,
     
-    @field:NotBlank(message = "이메일은 필수입니다")
-    @field:Email(message = "올바른 이메일 형식이 아닙니다")
-    val email: String,
-    
     @field:NotBlank(message = "비밀번호는 필수입니다")
-    @field:Size(min = 6, max = 100, message = "비밀번호는 6-100자 사이여야 합니다")
+    @field:Size(min = 6, message = "비밀번호는 최소 6자 이상이어야 합니다")
     val password: String,
     
-    val nickname: String? = null
+    @field:NotBlank(message = "이름은 필수입니다")
+    val firstName: String,
+    
+    @field:NotBlank(message = "성은 필수입니다")
+    val lastName: String,
+    
+    @field:Email(message = "올바른 이메일 형식이어야 합니다")
+    val email: String,
+    
+    val phone: String? = null,
+    val address: String? = null
 )
 
-data class UserLoginRequest(
-    @field:NotBlank(message = "사용자명은 필수입니다")
+data class LoginRequest(
+    @field:NotBlank(message = "아이디는 필수입니다")
     val username: String,
     
     @field:NotBlank(message = "비밀번호는 필수입니다")
     val password: String
 )
 
-data class UserUpdateRequest(
-    val nickname: String? = null,
-    val profileImageUrl: String? = null
+data class LoginResponse(
+    val token: String,
+    val userId: Long,
+    val username: String,
+    val firstName: String,
+    val lastName: String,
+    val email: String
 )
 
 data class UserResponse(
     val id: Long,
     val username: String,
+    val firstName: String,
+    val lastName: String,
     val email: String,
-    val nickname: String?,
-    val profileImageUrl: String?,
+    val phone: String?,
+    val address: String?,
     val isActive: Boolean,
-    val role: UserRole,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime
 ) {
@@ -52,17 +63,26 @@ data class UserResponse(
             return UserResponse(
                 id = user.id,
                 username = user.username,
+                firstName = user.firstName,
+                lastName = user.lastName,
                 email = user.email,
-                nickname = user.nickname,
-                profileImageUrl = user.profileImageUrl,
+                phone = user.phone,
+                address = user.address,
                 isActive = user.isActive,
-                role = user.role,
                 createdAt = user.createdAt,
                 updatedAt = user.updatedAt
             )
         }
     }
 }
+
+data class UserUpdateRequest(
+    val firstName: String? = null,
+    val lastName: String? = null,
+    val email: String? = null,
+    val phone: String? = null,
+    val address: String? = null
+)
 
 data class UserProfileResponse(
     val id: Long,

@@ -14,7 +14,7 @@ class User : BaseEntity() {
     val id: Long = 0
     
     @NotBlank
-    @Size(min = 2, max = 50)
+    @Size(min = 3, max = 20)
     @Column(name = "username", unique = true, nullable = false)
     var username: String = ""
     
@@ -28,11 +28,19 @@ class User : BaseEntity() {
     @Column(name = "password", nullable = false)
     var password: String = ""
     
-    @Column(name = "nickname")
-    var nickname: String? = null
+    @NotBlank
+    @Column(name = "first_name", nullable = false)
+    var firstName: String = ""
     
-    @Column(name = "profile_image_url")
-    var profileImageUrl: String? = null
+    @NotBlank
+    @Column(name = "last_name", nullable = false)
+    var lastName: String = ""
+    
+    @Column(name = "phone")
+    var phone: String? = null
+    
+    @Column(name = "address")
+    var address: String? = null
     
     @Column(name = "is_active", nullable = false)
     var isActive: Boolean = true

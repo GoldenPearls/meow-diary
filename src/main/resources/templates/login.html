@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${title}">로그인 - MeowDiary</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="/css/style.css" rel="stylesheet" />
+  </head>
+  <body class="bg-light">
+    <!-- 네비게이션 바 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="fas fa-cat text-primary"></i>
+          <span class="ms-2">MeowDiary</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- 로그인 섹션 -->
+    <div class="container mt-5">
+      <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+          <div class="card shadow">
+            <div class="card-body p-5">
+              <div class="text-center mb-4">
+                <i class="fas fa-cat fa-3x text-primary mb-3"></i>
+                <h2>로그인</h2>
+                <p class="text-muted">
+                  고양이와 함께하는 건강한 일상을 시작하세요
+                </p>
+              </div>
+
+              <form id="loginForm">
+                <div class="mb-3">
+                  <label for="username" class="form-label">아이디</label>
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="fas fa-user"></i>
+                    </span>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="username"
+                      name="username"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="password" class="form-label">비밀번호</label>
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="fas fa-lock"></i>
+                    </span>
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="password"
+                      name="password"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div class="mb-3 form-check">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    id="rememberMe"
+                  />
+                  <label class="form-check-label" for="rememberMe">
+                    로그인 상태 유지
+                  </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mb-3">
+                  <i class="fas fa-sign-in-alt"></i> 로그인
+                </button>
+
+                <div class="text-center">
+                  <p class="mb-0">
+                    계정이 없으신가요?
+                    <a href="/register" class="text-decoration-none"
+                      >회원가입</a
+                    >
+                  </p>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="bg-light mt-5 py-4">
+      <div class="container text-center">
+        <p class="mb-0">
+          <i class="fas fa-cat text-primary"></i>
+          MeowDiary - 고양이와 함께하는 건강한 일상 🐾
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const formData = new FormData(this);
+          const loginData = {
+            username: formData.get("username"),
+            password: formData.get("password"),
+          };
+
+          // 로그인 API 호출
+          fetch("/api/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(loginData),
+          })
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              }
+              throw new Error("로그인에 실패했습니다.");
+            })
+            .then((data) => {
+              // 로그인 성공 시 토큰 저장
+              localStorage.setItem("authToken", data.token);
+              localStorage.setItem("userId", data.userId);
+              localStorage.setItem("username", data.username);
+
+              showToast("로그인 성공! 환영합니다!", "success");
+
+              // 메인 페이지로 이동
+              setTimeout(() => {
+                window.location.href = "/cats";
+              }, 1000);
+            })
+            .catch((error) => {
+              showToast(
+                "로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.",
+                "error"
+              );
+            });
+        });
+    </script>
+  </body>
+</html>
