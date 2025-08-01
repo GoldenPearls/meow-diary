@@ -9,7 +9,7 @@ class Image : BaseEntity() {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0
+    var id: Long = 0
     
     @Column(name = "file_name", nullable = false)
     var fileName: String = ""

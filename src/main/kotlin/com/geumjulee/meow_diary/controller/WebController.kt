@@ -3,6 +3,7 @@ package com.geumjulee.meow_diary.controller
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 
 @Controller
 class WebController {
@@ -24,6 +25,25 @@ class WebController {
         model.addAttribute("title", "회원가입 - MeowDiary")
         return "register"
     }
+    
+    @GetMapping("/mypage")
+    fun mypage(model: Model): String {
+        model.addAttribute("title", "마이페이지 - MeowDiary")
+        return "mypage"
+    }
+    
+    @GetMapping("/community")
+    fun community(model: Model): String {
+        model.addAttribute("title", "커뮤니티 - MeowDiary")
+        return "community"
+    }
+    
+    @GetMapping("/cat/{catId}/records")
+    fun catRecords(@PathVariable catId: Long, model: Model): String {
+        model.addAttribute("title", "고양이 기록 - MeowDiary")
+        model.addAttribute("catId", catId)
+        return "cat-records"
+    }
 
     @GetMapping("/cats")
     fun cats(model: Model): String {
@@ -41,12 +61,6 @@ class WebController {
     fun dailyRecords(model: Model): String {
         model.addAttribute("title", "냥이와의 일일 기록 - MeowDiary")
         return "daily-records"
-    }
-
-    @GetMapping("/community")
-    fun community(model: Model): String {
-        model.addAttribute("title", "커뮤니티 - MeowDiary")
-        return "community"
     }
 
     @GetMapping("/ai-advice")

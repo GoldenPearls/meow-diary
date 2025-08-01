@@ -11,7 +11,7 @@ class User : BaseEntity() {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0
+    var id: Long = 0
     
     @NotBlank
     @Size(min = 3, max = 20)
@@ -27,6 +27,17 @@ class User : BaseEntity() {
     @Size(min = 6, max = 100)
     @Column(name = "password", nullable = false)
     var password: String = ""
+    
+    @NotBlank
+    @Size(min = 2, max = 20)
+    @Column(name = "nickname", unique = true, nullable = false)
+    var nickname: String = ""
+    
+    @Column(name = "email_verified", nullable = false)
+    var emailVerified: Boolean = false
+    
+    @Column(name = "email_verification_token")
+    var emailVerificationToken: String? = null
     
     @NotBlank
     @Column(name = "first_name", nullable = false)
@@ -50,19 +61,19 @@ class User : BaseEntity() {
     var role: UserRole = UserRole.USER
     
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val cats: MutableList<Cat> = mutableListOf()
+    var cats: MutableList<Cat> = mutableListOf()
     
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val communityPosts: MutableList<CommunityPost> = mutableListOf()
+    var communityPosts: MutableList<CommunityPost> = mutableListOf()
     
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val communityComments: MutableList<CommunityComment> = mutableListOf()
+    var communityComments: MutableList<CommunityComment> = mutableListOf()
     
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val communityLikes: MutableList<CommunityLike> = mutableListOf()
+    var communityLikes: MutableList<CommunityLike> = mutableListOf()
     
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val aiQueries: MutableList<AiQuery> = mutableListOf()
+    var aiQueries: MutableList<AiQuery> = mutableListOf()
 }
 
 enum class UserRole {

@@ -10,7 +10,7 @@ class HealthRecord : BaseEntity() {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0
+    var id: Long = 0
     
     @NotNull
     @Column(name = "record_date", nullable = false)
@@ -49,7 +49,7 @@ class HealthRecord : BaseEntity() {
     var cat: Cat? = null
     
     @OneToMany(mappedBy = "healthRecord", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val images: MutableList<Image> = mutableListOf()
+    var images: MutableList<Image> = mutableListOf()
 }
 
 enum class HealthStatus {

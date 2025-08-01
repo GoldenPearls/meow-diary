@@ -16,6 +16,10 @@ data class UserRegistrationRequest(
     @field:Size(min = 6, message = "비밀번호는 최소 6자 이상이어야 합니다")
     val password: String,
     
+    @field:NotBlank(message = "닉네임은 필수입니다")
+    @field:Size(min = 2, max = 20, message = "닉네임은 2-20자 사이여야 합니다")
+    val nickname: String,
+    
     @field:NotBlank(message = "이름은 필수입니다")
     val firstName: String,
     
@@ -41,20 +45,24 @@ data class LoginResponse(
     val token: String,
     val userId: Long,
     val username: String,
+    val nickname: String,
     val firstName: String,
     val lastName: String,
-    val email: String
+    val email: String,
+    val emailVerified: Boolean
 )
 
 data class UserResponse(
     val id: Long,
     val username: String,
+    val nickname: String,
     val firstName: String,
     val lastName: String,
     val email: String,
     val phone: String?,
     val address: String?,
     val isActive: Boolean,
+    val emailVerified: Boolean,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime
 ) {
@@ -63,12 +71,14 @@ data class UserResponse(
             return UserResponse(
                 id = user.id,
                 username = user.username,
+                nickname = user.nickname,
                 firstName = user.firstName,
                 lastName = user.lastName,
                 email = user.email,
                 phone = user.phone,
                 address = user.address,
                 isActive = user.isActive,
+                emailVerified = user.emailVerified,
                 createdAt = user.createdAt,
                 updatedAt = user.updatedAt
             )
@@ -92,4 +102,27 @@ data class UserProfileResponse(
     val catCount: Int,
     val postCount: Int,
     val createdAt: LocalDateTime
+)
+
+data class DuplicateCheckRequest(
+    @field:NotBlank(message = "확인할 값은 필수입니다")
+    val value: String,
+    
+    @field:NotBlank(message = "확인할 타입은 필수입니다")
+    val type: String // "username", "email", "nickname"
+)
+
+data class DuplicateCheckResponse(
+    val isDuplicate: Boolean,
+    val message: String
+)
+
+data class EmailVerificationRequest(
+    @field:NotBlank(message = "토큰은 필수입니다")
+    val token: String
+)
+
+data class EmailVerificationResponse(
+    val success: Boolean,
+    val message: String
 ) 

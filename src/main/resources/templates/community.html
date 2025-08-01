@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${title}">커뮤니티 - MeowDiary</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- 네비게이션 바 -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="fas fa-cat"></i> MeowDiary
+        </a>
+
+        <div class="navbar-nav ms-auto">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="fas fa-home"></i>
+                <span class="d-none d-md-inline">홈</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/cats">
+                <i class="fas fa-paw"></i>
+                <span class="d-none d-md-inline">내 고양이들</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/mypage">
+                <i class="fas fa-user"></i>
+                <span class="d-none d-md-inline">마이페이지</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/health">
+                <i class="fas fa-heartbeat"></i>
+                <span class="d-none d-md-inline">건강 기록</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/community">
+                <i class="fas fa-users"></i>
+                <span class="d-none d-md-inline">커뮤니티</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/ai-advice">
+                <i class="fas fa-robot"></i>
+                <span class="d-none d-md-inline">AI 조언</span>
+              </a>
+            </li>
+            <li class="nav-item dropdown d-none d-md-block">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="userDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-user"></i> <span id="username">사용자</span>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> 로그아웃
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item d-md-none">
+              <a class="nav-link" href="#" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="container mt-4">
+      <!-- 헤더 섹션 -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center">
+            <h1><i class="fas fa-users"></i> 고양이 커뮤니티</h1>
+            <button
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#writePostModal"
+            >
+              <i class="fas fa-plus"></i> 글쓰기
+            </button>
+          </div>
+          <p class="text-muted">다른 고양이 집사들과 정보를 공유해보세요!</p>
+        </div>
+      </div>
+
+      <!-- 카테고리 필터 섹션 -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title mb-3">
+                <i class="fas fa-filter"></i> 카테고리 필터
+              </h6>
+
+              <!-- 카테고리 버튼들 -->
+              <div class="row mb-3">
+                <div class="col-12">
+                  <div class="d-flex flex-wrap gap-2" id="categoryButtons">
+                    <button
+                      class="btn btn-outline-primary btn-sm category-btn active"
+                      data-category=""
+                      onclick="filterByCategory('')"
+                    >
+                      <i class="fas fa-th"></i> 전체
+                    </button>
+                    <button
+                      class="btn btn-outline-success btn-sm category-btn"
+                      data-category="DAILY"
+                      onclick="filterByCategory('DAILY')"
+                    >
+                      <i class="fas fa-camera"></i> 일상/사진
+                    </button>
+                    <button
+                      class="btn btn-outline-danger btn-sm category-btn"
+                      data-category="HEALTH"
+                      onclick="filterByCategory('HEALTH')"
+                    >
+                      <i class="fas fa-heartbeat"></i> 건강/병원
+                    </button>
+                    <button
+                      class="btn btn-outline-warning btn-sm category-btn"
+                      data-category="FOOD"
+                      onclick="filterByCategory('FOOD')"
+                    >
+                      <i class="fas fa-utensils"></i> 사료/간식
+                    </button>
+                    <button
+                      class="btn btn-outline-info btn-sm category-btn"
+                      data-category="PLAY"
+                      onclick="filterByCategory('PLAY')"
+                    >
+                      <i class="fas fa-gamepad"></i> 놀이/장난감
+                    </button>
+                    <button
+                      class="btn btn-outline-secondary btn-sm category-btn"
+                      data-category="BEHAVIOR"
+                      onclick="filterByCategory('BEHAVIOR')"
+                    >
+                      <i class="fas fa-brain"></i> 행동/성격
+                    </button>
+                    <button
+                      class="btn btn-outline-dark btn-sm category-btn"
+                      data-category="CARE"
+                      onclick="filterByCategory('CARE')"
+                    >
+                      <i class="fas fa-cut"></i> 케어/미용
+                    </button>
+                    <button
+                      class="btn btn-outline-primary btn-sm category-btn"
+                      data-category="ADVICE"
+                      onclick="filterByCategory('ADVICE')"
+                    >
+                      <i class="fas fa-question-circle"></i> 고민/상담
+                    </button>
+                    <button
+                      class="btn btn-outline-success btn-sm category-btn"
+                      data-category="INFO"
+                      onclick="filterByCategory('INFO')"
+                    >
+                      <i class="fas fa-info-circle"></i> 정보/팁
+                    </button>
+                    <button
+                      class="btn btn-outline-warning btn-sm category-btn"
+                      data-category="ADOPTION"
+                      onclick="filterByCategory('ADOPTION')"
+                    >
+                      <i class="fas fa-home"></i> 입양/분양
+                    </button>
+                    <button
+                      class="btn btn-outline-danger btn-sm category-btn"
+                      data-category="LOST"
+                      onclick="filterByCategory('LOST')"
+                    >
+                      <i class="fas fa-search"></i> 실종/보호
+                    </button>
+                    <button
+                      class="btn btn-outline-info btn-sm category-btn"
+                      data-category="HUMOR"
+                      onclick="filterByCategory('HUMOR')"
+                    >
+                      <i class="fas fa-laugh"></i> 유머/재미
+                    </button>
+                    <button
+                      class="btn btn-outline-secondary btn-sm category-btn"
+                      data-category="ART"
+                      onclick="filterByCategory('ART')"
+                    >
+                      <i class="fas fa-palette"></i> 그림/공예
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 검색 필터 -->
+              <div class="row">
+                <div class="col-md-8">
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="searchInput"
+                      placeholder="검색어를 입력하세요..."
+                    />
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      onclick="searchPosts()"
+                    >
+                      <i class="fas fa-search"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <select class="form-select" id="categoryFilter">
+                    <option value="">전체 카테고리</option>
+                    <option value="DAILY">일상/사진</option>
+                    <option value="HEALTH">건강/병원</option>
+                    <option value="FOOD">사료/간식</option>
+                    <option value="PLAY">놀이/장난감</option>
+                    <option value="BEHAVIOR">행동/성격</option>
+                    <option value="CARE">케어/미용</option>
+                    <option value="ADVICE">고민/상담</option>
+                    <option value="INFO">정보/팁</option>
+                    <option value="ADOPTION">입양/분양</option>
+                    <option value="LOST">실종/보호</option>
+                    <option value="HUMOR">유머/재미</option>
+                    <option value="ART">그림/공예</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 게시글 목록 -->
+      <div class="row" id="postsList">
+        <!-- 게시글들이 여기에 동적으로 추가됩니다 -->
+      </div>
+
+      <!-- 페이지네이션 -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <nav aria-label="게시글 페이지네이션">
+            <ul class="pagination justify-content-center" id="pagination">
+              <!-- 페이지네이션이 여기에 추가됩니다 -->
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </main>
+
+    <!-- 글쓰기 모달 -->
+    <div class="modal fade" id="writePostModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fas fa-edit"></i> 새 글 작성</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <form id="writePostForm">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="postTitle" class="form-label">제목</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="postTitle"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="postCategory" class="form-label">카테고리</label>
+                <select class="form-select" id="postCategory" required>
+                  <option value="">카테고리 선택</option>
+                  <option value="DAILY">일상/사진</option>
+                  <option value="HEALTH">건강/병원</option>
+                  <option value="FOOD">사료/간식</option>
+                  <option value="PLAY">놀이/장난감</option>
+                  <option value="BEHAVIOR">행동/성격</option>
+                  <option value="CARE">케어/미용</option>
+                  <option value="ADVICE">고민/상담</option>
+                  <option value="INFO">정보/팁</option>
+                  <option value="ADOPTION">입양/분양</option>
+                  <option value="LOST">실종/보호</option>
+                  <option value="HUMOR">유머/재미</option>
+                  <option value="ART">그림/공예</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="postContent" class="form-label">내용</label>
+                <textarea
+                  class="form-control"
+                  id="postContent"
+                  rows="8"
+                  required
+                  placeholder="고양이와 관련된 이야기를 공유해보세요..."
+                ></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="postImage" class="form-label"
+                  >이미지 첨부 (선택사항)</label
+                >
+                <input
+                  type="file"
+                  class="form-control"
+                  id="postImage"
+                  accept="image/*"
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                취소
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i> 게시하기
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 댓글 모달 -->
+    <div class="modal fade" id="commentsModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="commentsModalTitle">댓글</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="commentsList">
+              <!-- 댓글들이 여기에 표시됩니다 -->
+            </div>
+            <div class="mt-3">
+              <form id="addCommentForm">
+                <div class="input-group">
+                  <textarea
+                    class="form-control"
+                    id="commentContent"
+                    rows="2"
+                    placeholder="댓글을 입력하세요..."
+                  ></textarea>
+                  <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-paper-plane"></i>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+      let currentUserId = null;
+      let currentPage = 1;
+      let selectedPostId = null;
+
+      // 페이지 로드 시 실행
+      document.addEventListener("DOMContentLoaded", function () {
+        checkAuth();
+        loadPosts();
+      });
+
+      // 인증 확인
+      function checkAuth() {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          showToast("로그인이 필요한 서비스입니다.", "error");
+          window.location.href = "/login";
+          return;
+        }
+        currentUserId = localStorage.getItem("userId");
+        document.getElementById("username").textContent =
+          localStorage.getItem("username");
+      }
+
+      // 게시글 목록 로드
+      function loadPosts(page = 1) {
+        currentPage = page;
+        fetch(`/api/community/posts?page=${page - 1}&size=10`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            displayPosts(data.content);
+            displayPagination(data.totalPages, data.currentPage);
+          })
+          .catch((error) => {
+            console.error("게시글 로드 실패:", error);
+            showToast("게시글을 불러오는데 실패했습니다.", "error");
+          });
+      }
+
+      // 게시글 표시
+      function displayPosts(posts) {
+        const postsList = document.getElementById("postsList");
+        postsList.innerHTML = "";
+
+        if (posts.length === 0) {
+          postsList.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <h3 class="text-muted">아직 게시글이 없어요</h3>
+                        <p class="text-muted">첫 번째 게시글을 작성해보세요!</p>
+                    </div>
+                `;
+          return;
+        }
+
+        posts.forEach((post) => {
+          const postCard = document.createElement("div");
+          postCard.className = "col-md-6 col-lg-4 mb-4";
+          postCard.innerHTML = `
+                    <div class="post-card">
+                        <div class="card-body">
+                            <div class="post-header">
+                                <div class="post-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="post-info">
+                                    <h6 class="mb-0">${post.userFullName}</h6>
+                                    <small class="text-muted">${new Date(
+                                      post.createdAt
+                                    ).toLocaleDateString()}</small>
+                                </div>
+                                <span class="badge ${getCategoryBadgeClass(
+                                  post.category
+                                )}">${getCategoryName(post.category)}</span>
+                            </div>
+                            <h5 class="card-title mt-3">${post.title}</h5>
+                            <p class="card-text">${post.content.substring(
+                              0,
+                              100
+                            )}${post.content.length > 100 ? "..." : ""}</p>
+                            <div class="post-actions">
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewComments(${
+                                  post.id
+                                })">
+                                    <i class="fas fa-comments"></i> 댓글 ${
+                                      post.commentCount || 0
+                                    }
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" onclick="likePost(${
+                                  post.id
+                                })">
+                                    <i class="fas fa-heart"></i> 좋아요 ${
+                                      post.likeCount || 0
+                                    }
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+          postsList.appendChild(postCard);
+        });
+      }
+
+      // 카테고리 이름 변환
+      function getCategoryName(category) {
+        const categories = {
+          DAILY: "일상/사진",
+          HEALTH: "건강/병원",
+          FOOD: "사료/간식",
+          PLAY: "놀이/장난감",
+          BEHAVIOR: "행동/성격",
+          CARE: "케어/미용",
+          ADVICE: "고민/상담",
+          INFO: "정보/팁",
+          ADOPTION: "입양/분양",
+          LOST: "실종/보호",
+          HUMOR: "유머/재미",
+          ART: "그림/공예",
+        };
+        return categories[category] || category;
+      }
+
+      // 카테고리별 배지 색상
+      function getCategoryBadgeClass(category) {
+        const badgeClasses = {
+          DAILY: "bg-success",
+          HEALTH: "bg-danger",
+          FOOD: "bg-warning",
+          PLAY: "bg-info",
+          BEHAVIOR: "bg-secondary",
+          CARE: "bg-dark",
+          ADVICE: "bg-primary",
+          INFO: "bg-success",
+          ADOPTION: "bg-warning",
+          LOST: "bg-danger",
+          HUMOR: "bg-info",
+          ART: "bg-secondary",
+        };
+        return badgeClasses[category] || "bg-primary";
+      }
+
+      // 카테고리 필터링
+      function filterByCategory(category) {
+        // 모든 카테고리 버튼에서 active 클래스 제거
+        document.querySelectorAll(".category-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+
+        // 클릭된 버튼에 active 클래스 추가
+        event.target.classList.add("active");
+
+        // 카테고리 필터 업데이트
+        document.getElementById("categoryFilter").value = category;
+
+        // 게시글 다시 로드
+        loadPosts();
+      }
+
+      // 페이지네이션 표시
+      function displayPagination(totalPages, currentPage) {
+        const pagination = document.getElementById("pagination");
+        pagination.innerHTML = "";
+
+        if (totalPages <= 1) return;
+
+        // 이전 버튼
+        if (currentPage > 0) {
+          pagination.innerHTML += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="loadPosts(${currentPage})">이전</a>
+                    </li>
+                `;
+        }
+
+        // 페이지 번호
+        for (let i = 0; i < totalPages; i++) {
+          pagination.innerHTML += `
+                    <li class="page-item ${i === currentPage ? "active" : ""}">
+                        <a class="page-link" href="#" onclick="loadPosts(${
+                          i + 1
+                        })">${i + 1}</a>
+                    </li>
+                `;
+        }
+
+        // 다음 버튼
+        if (currentPage < totalPages - 1) {
+          pagination.innerHTML += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="loadPosts(${
+                          currentPage + 2
+                        })">다음</a>
+                    </li>
+                `;
+        }
+      }
+
+      // 게시글 작성
+      document
+        .getElementById("writePostForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const formData = new FormData();
+          formData.append("title", document.getElementById("postTitle").value);
+          formData.append(
+            "content",
+            document.getElementById("postContent").value
+          );
+          formData.append(
+            "category",
+            document.getElementById("postCategory").value
+          );
+
+          const imageFile = document.getElementById("postImage").files[0];
+          if (imageFile) {
+            formData.append("image", imageFile);
+          }
+
+          fetch("/api/community/posts", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              showToast("게시글이 성공적으로 작성되었습니다!", "success");
+              document.getElementById("writePostForm").reset();
+              const modal = bootstrap.Modal.getInstance(
+                document.getElementById("writePostModal")
+              );
+              modal.hide();
+              loadPosts();
+            })
+            .catch((error) => {
+              console.error("게시글 작성 실패:", error);
+              showToast("게시글 작성에 실패했습니다.", "error");
+            });
+        });
+
+      // 댓글 보기
+      function viewComments(postId) {
+        selectedPostId = postId;
+        fetch(`/api/community/posts/${postId}/comments`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((comments) => {
+            displayComments(comments);
+            document.getElementById("commentsModalTitle").textContent = "댓글";
+            const modal = new bootstrap.Modal(
+              document.getElementById("commentsModal")
+            );
+            modal.show();
+          })
+          .catch((error) => {
+            console.error("댓글 로드 실패:", error);
+            showToast("댓글을 불러오는데 실패했습니다.", "error");
+          });
+      }
+
+      // 댓글 표시
+      function displayComments(comments) {
+        const commentsList = document.getElementById("commentsList");
+        commentsList.innerHTML = "";
+
+        if (comments.length === 0) {
+          commentsList.innerHTML =
+            '<p class="text-muted">아직 댓글이 없습니다.</p>';
+          return;
+        }
+
+        comments.forEach((comment) => {
+          const commentDiv = document.createElement("div");
+          commentDiv.className = "comment-item border-bottom pb-2 mb-2";
+          commentDiv.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>${comment.userFullName}</strong>
+                            <small class="text-muted ms-2">${new Date(
+                              comment.createdAt
+                            ).toLocaleDateString()}</small>
+                        </div>
+                    </div>
+                    <p class="mb-0 mt-1">${comment.content}</p>
+                `;
+          commentsList.appendChild(commentDiv);
+        });
+      }
+
+      // 댓글 작성
+      document
+        .getElementById("addCommentForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const commentData = {
+            content: document.getElementById("commentContent").value,
+          };
+
+          fetch(`/api/community/posts/${selectedPostId}/comments`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+            body: JSON.stringify(commentData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              showToast("댓글이 성공적으로 작성되었습니다!", "success");
+              document.getElementById("commentContent").value = "";
+              viewComments(selectedPostId);
+              loadPosts(currentPage);
+            })
+            .catch((error) => {
+              console.error("댓글 작성 실패:", error);
+              showToast("댓글 작성에 실패했습니다.", "error");
+            });
+        });
+
+      // 게시글 좋아요
+      function likePost(postId) {
+        fetch(`/api/community/posts/${postId}/like`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            showToast("좋아요가 반영되었습니다!", "success");
+            loadPosts(currentPage);
+          })
+          .catch((error) => {
+            console.error("좋아요 실패:", error);
+            showToast("좋아요 처리에 실패했습니다.", "error");
+          });
+      }
+
+      // 게시글 검색
+      function searchPosts() {
+        const searchTerm = document.getElementById("searchInput").value;
+        const category = document.getElementById("categoryFilter").value;
+
+        let url = `/api/community/posts?page=0&size=10`;
+        if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
+        if (category) url += `&category=${category}`;
+
+        fetch(url, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            displayPosts(data.content);
+            displayPagination(data.totalPages, data.currentPage);
+          })
+          .catch((error) => {
+            console.error("검색 실패:", error);
+            showToast("검색에 실패했습니다.", "error");
+          });
+      }
+
+      // 로그아웃
+      function logout() {
+        localStorage.clear();
+        window.location.href = "/";
+      }
+    </script>
+  </body>
+</html>

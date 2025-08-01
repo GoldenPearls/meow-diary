@@ -51,10 +51,28 @@ body {
   color: var(--primary-color) !important;
   background: rgba(255, 107, 107, 0.1);
   transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2) !important;
+  outline: none !important;
 }
 
 .nav-link.active {
   background: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* 데스크톱 네비게이션 아이콘 색상 */
+.navbar-nav .nav-link i {
+  color: var(--dark-color);
+  transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover i {
+  color: var(--primary-color);
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+.navbar-nav .nav-link.active i {
   color: white !important;
 }
 
@@ -221,6 +239,139 @@ body {
   75% { transform: translate(1px, 2px); }
 }
 
+/* 고양이 꼬리 애니메이션 */
+.cat-tail {
+  position: absolute;
+  bottom: 20px;
+  right: 30px;
+  width: 60px;
+  height: 12px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  border-radius: 6px;
+  animation: tailWag 3s ease-in-out infinite;
+  transform-origin: left center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 고양이 발바닥 */
+.cat-paws {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 30px;
+}
+
+.paw {
+  position: absolute;
+  width: 15px;
+  height: 10px;
+  background: var(--primary-color);
+  border-radius: 8px;
+  animation: pawStep 2s ease-in-out infinite;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.paw:nth-child(1) { left: 5px; animation-delay: 0s; }
+.paw:nth-child(2) { left: 25px; animation-delay: 0.3s; }
+.paw:nth-child(3) { left: 45px; animation-delay: 0.6s; }
+.paw:nth-child(4) { left: 65px; animation-delay: 0.9s; }
+
+/* 고양이 수염 */
+.cat-whiskers {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 30px;
+}
+
+.whisker {
+  position: absolute;
+  width: 25px;
+  height: 2px;
+  background: var(--dark-color);
+  animation: whiskerTwitch 4s ease-in-out infinite;
+  border-radius: 1px;
+}
+
+.whisker:nth-child(1) { left: 0; top: 5px; transform: rotate(-30deg); }
+.whisker:nth-child(2) { left: 0; top: 12px; transform: rotate(-15deg); }
+.whisker:nth-child(3) { left: 0; top: 19px; transform: rotate(0deg); }
+.whisker:nth-child(4) { right: 0; top: 5px; transform: rotate(30deg); }
+.whisker:nth-child(5) { right: 0; top: 12px; transform: rotate(15deg); }
+.whisker:nth-child(6) { right: 0; top: 19px; transform: rotate(0deg); }
+
+/* 고양이 귀여운 표정 변화 */
+.cat-face::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  animation: blush 6s ease-in-out infinite;
+}
+
+/* 애니메이션 키프레임들 */
+@keyframes tailWag {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(15deg); }
+  50% { transform: rotate(-10deg); }
+  75% { transform: rotate(20deg); }
+}
+
+@keyframes pawStep {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.1); }
+}
+
+@keyframes whiskerTwitch {
+  0%, 100% { transform: rotate(var(--rotation, 0deg)) scale(1); }
+  50% { transform: rotate(calc(var(--rotation, 0deg) + 5deg)) scale(1.05); }
+}
+
+@keyframes blush {
+  0%, 100% { opacity: 0.3; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.6; transform: translateX(-50%) scale(1.1); }
+}
+
+/* 고양이 하품 애니메이션 */
+.cat-mouth.yawning {
+  animation: yawn 8s ease-in-out infinite;
+}
+
+@keyframes yawn {
+  0%, 90%, 100% { transform: translateX(-50%) scaleY(1); }
+  95% { transform: translateX(-50%) scaleY(2); }
+}
+
+/* 고양이 스트레칭 */
+.cat-animation.stretching {
+  animation: stretch 5s ease-in-out infinite;
+}
+
+@keyframes stretch {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.1) rotate(5deg); }
+}
+
+/* 고양이 졸린 표정 */
+.cat-eyes.sleepy .eye {
+  animation: sleepyBlink 4s ease-in-out infinite;
+}
+
+@keyframes sleepyBlink {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.3); }
+  75% { transform: scaleY(0.1); }
+}
+
 /* 기능 카드 - 더 귀엽게 */
 .feature-card {
   background: white;
@@ -247,6 +398,13 @@ body {
   transform: translateY(-15px) scale(1.02);
   box-shadow: 0 25px 50px rgba(255, 107, 107, 0.25);
   border-color: var(--primary-color);
+  animation: catStretch 0.4s ease-out;
+}
+
+@keyframes catStretch {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-20px) scale(1.03); }
+  100% { transform: translateY(-15px) scale(1.02); }
 }
 
 .feature-icon {
@@ -329,6 +487,15 @@ body {
   transform: translateY(-8px) scale(1.05);
   box-shadow: 0 20px 40px rgba(255, 107, 107, 0.25);
   border-color: var(--primary-color);
+  animation: catPurr 0.6s ease-out;
+}
+
+@keyframes catPurr {
+  0% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(-4px) scale(1.02); }
+  50% { transform: translateY(-8px) scale(1.05); }
+  75% { transform: translateY(-6px) scale(1.03); }
+  100% { transform: translateY(-8px) scale(1.05); }
 }
 
 .counter {
@@ -686,7 +853,54 @@ body {
     font-size: 1.2rem;
     display: block;
     margin-bottom: 2px;
+    color: var(--primary-color);
   }
+
+  /* 각 메뉴 아이템별 아이콘 색상 */
+  .navbar-nav .nav-item:nth-child(1) .nav-link i {
+    color: var(--primary-color);
+  }
+
+  .navbar-nav .nav-item:nth-child(2) .nav-link i {
+    color: var(--secondary-color);
+  }
+
+  .navbar-nav .nav-item:nth-child(3) .nav-link i {
+    color: var(--accent-color);
+  }
+
+  .navbar-nav .nav-item:nth-child(4) .nav-link i {
+    color: var(--pink-accent);
+  }
+
+  .navbar-nav .nav-item:nth-child(5) .nav-link i {
+    color: var(--orange-accent);
+  }
+
+  .navbar-nav .nav-item:nth-child(6) .nav-link i {
+    color: var(--green-accent);
+  }
+
+  .navbar-nav .nav-item:nth-child(7) .nav-link i {
+    color: var(--blue-accent);
+  }
+
+  /* 활성 상태일 때 아이콘 색상 강화 */
+  .navbar-nav .nav-link.active i {
+    color: var(--primary-color) !important;
+    transform: scale(1.1);
+  }
+
+           /* 호버 효과 */
+         .navbar-nav .nav-link:hover i {
+           transform: scale(1.05);
+           transition: transform 0.2s ease;
+         }
+         
+         .navbar-nav .nav-link:hover {
+           outline: none !important;
+           box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2) !important;
+         }
 
   /* 메인 콘텐츠에 하단 패딩 추가 */
   main {
@@ -773,16 +987,60 @@ footer {
 .form-control:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 0.2rem rgba(255, 107, 107, 0.25);
+  outline: none !important;
 }
 
-/* 파란색 아웃라인 제거 */
+.form-control:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.1rem rgba(69, 183, 209, 0.2);
+}
+
+/* 파란색 아웃라인 제거 및 호버 효과 개선 */
 .form-control:focus,
 .form-select:focus,
 .btn:focus,
 .nav-link:focus,
-.navbar-toggler:focus {
+.navbar-toggler:focus,
+.btn:hover,
+.btn:active {
   outline: none !important;
   box-shadow: 0 0 0 0.2rem rgba(255, 107, 107, 0.25) !important;
+}
+
+/* 버튼 호버 효과 개선 */
+.btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3) !important;
+  animation: catPounce 0.3s ease-out;
+}
+
+@keyframes catPounce {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.05); }
+  100% { transform: translateY(-2px) scale(1.02); }
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4) !important;
+}
+
+/* 특정 버튼 스타일 개선 */
+.btn-primary:hover {
+  background: linear-gradient(135deg, #ff5252, #ff6b6b) !important;
+  border-color: #ff5252 !important;
+}
+
+.btn-outline-primary:hover {
+  background: linear-gradient(135deg, var(--primary-color), var(--pink-accent)) !important;
+  border-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+.btn-outline-secondary:hover {
+  background: linear-gradient(135deg, var(--accent-color), var(--blue-accent)) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
 }
 
 .form-label {
@@ -825,4 +1083,71 @@ footer {
 .toast-info {
   border-left: 6px solid var(--accent-color);
   background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+}
+
+/* 커뮤니티 카테고리 버튼 스타일 */
+.category-btn {
+  transition: all 0.3s ease;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+}
+
+.category-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.category-btn.active {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* 카테고리별 색상 테마 */
+.category-btn[data-category="DAILY"] {
+  border-color: var(--success-color);
+  color: var(--success-color);
+}
+
+.category-btn[data-category="DAILY"]:hover,
+.category-btn[data-category="DAILY"].active {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+  color: white;
+}
+
+.category-btn[data-category="HEALTH"] {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.category-btn[data-category="HEALTH"]:hover,
+.category-btn[data-category="HEALTH"].active {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.category-btn[data-category="FOOD"] {
+  border-color: var(--warning-color);
+  color: var(--warning-color);
+}
+
+.category-btn[data-category="FOOD"]:hover,
+.category-btn[data-category="FOOD"].active {
+  background-color: var(--warning-color);
+  border-color: var(--warning-color);
+  color: white;
+}
+
+.category-btn[data-category="PLAY"] {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.category-btn[data-category="PLAY"]:hover,
+.category-btn[data-category="PLAY"].active {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: white;
 }

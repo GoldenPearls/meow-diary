@@ -1,10 +1,6 @@
 package com.geumjulee.meow_diary.service
 
-import com.geumjulee.meow_diary.dto.LoginRequest
-import com.geumjulee.meow_diary.dto.LoginResponse
-import com.geumjulee.meow_diary.dto.UserRegistrationRequest
-import com.geumjulee.meow_diary.dto.UserResponse
-import com.geumjulee.meow_diary.dto.UserUpdateRequest
+import com.geumjulee.meow_diary.dto.*
 import com.geumjulee.meow_diary.entity.User
 import com.geumjulee.meow_diary.entity.UserRole
 import com.geumjulee.meow_diary.repository.UserRepository
@@ -21,27 +17,38 @@ class UserService(
 ) {
     
     fun registerUser(request: UserRegistrationRequest): UserResponse {
-        // 중복 검사
+        // 중복 확인
         if (userRepository.existsByUsername(request.username)) {
-            throw IllegalArgumentException("이미 존재하는 아이디입니다")
+            throw IllegalArgumentException("이미 사용 중인 아이디입니다")
         }
         if (userRepository.existsByEmail(request.email)) {
-            throw IllegalArgumentException("이미 존재하는 이메일입니다")
+            throw IllegalArgumentException("이미 사용 중인 이메일입니다")
         }
-        
-        val user = User().apply {
-            username = request.username
-            email = request.email
-            password = passwordEncoder.encode(request.password)
-            firstName = request.firstName
-            lastName = request.lastName
-            phone = request.phone
-            address = request.address
-            role = UserRole.USER
-            isActive = true
+        if (userRepository.existsByNickname(request.nickname)) {
+            throw IllegalArgumentException("이미 사용 중인 닉네임입니다")
         }
-        
+
+        val emailVerificationToken = UUID.randomUUID().toString()
+
+        val user = User()
+        user.username = request.username
+        user.email = request.email
+        user.password = passwordEncoder.encode(request.password)
+        user.nickname = request.nickname
+        user.firstName = request.firstName
+        user.lastName = request.lastName
+        user.phone = request.phone
+        user.address = request.address
+        user.role = UserRole.USER
+        user.isActive = true
+        user.emailVerified = false
+        user.emailVerificationToken = emailVerificationToken
+
         val savedUser = userRepository.save(user)
+        
+        // TODO: 이메일 인증 메일 발송
+        // sendVerificationEmail(savedUser.email, emailVerificationToken)
+        
         return UserResponse.from(savedUser)
     }
     
@@ -56,22 +63,57 @@ class UserService(
         if (!user.isActive) {
             throw IllegalArgumentException("비활성화된 계정입니다")
         }
-        
-        // 간단한 토큰 생성 (실제로는 JWT 사용 권장)
-        val token = generateSimpleToken()
+
+        val token = UUID.randomUUID().toString()
         
         return LoginResponse(
             token = token,
             userId = user.id,
             username = user.username,
+            nickname = user.nickname,
             firstName = user.firstName,
             lastName = user.lastName,
-            email = user.email
+            email = user.email,
+            emailVerified = user.emailVerified
         )
     }
-    
-    private fun generateSimpleToken(): String {
-        return UUID.randomUUID().toString()
+
+    fun checkDuplicate(request: DuplicateCheckRequest): DuplicateCheckResponse {
+        val isDuplicate = when (request.type.lowercase()) {
+            "username" -> userRepository.existsByUsername(request.value)
+            "email" -> userRepository.existsByEmail(request.value)
+            "nickname" -> userRepository.existsByNickname(request.value)
+            else -> throw IllegalArgumentException("잘못된 확인 타입입니다")
+        }
+
+        val message = if (isDuplicate) {
+            when (request.type.lowercase()) {
+                "username" -> "이미 사용 중인 아이디입니다"
+                "email" -> "이미 사용 중인 이메일입니다"
+                "nickname" -> "이미 사용 중인 닉네임입니다"
+                else -> "이미 사용 중입니다"
+            }
+        } else {
+            when (request.type.lowercase()) {
+                "username" -> "사용 가능한 아이디입니다"
+                "email" -> "사용 가능한 이메일입니다"
+                "nickname" -> "사용 가능한 닉네임입니다"
+                else -> "사용 가능합니다"
+            }
+        }
+
+        return DuplicateCheckResponse(isDuplicate, message)
+    }
+
+    fun verifyEmail(token: String): EmailVerificationResponse {
+        val user = userRepository.findByEmailVerificationToken(token)
+            ?: return EmailVerificationResponse(false, "유효하지 않은 인증 토큰입니다")
+
+        user.emailVerified = true
+        user.emailVerificationToken = null
+        userRepository.save(user)
+
+        return EmailVerificationResponse(true, "이메일 인증이 완료되었습니다")
     }
     
     @Transactional(readOnly = true)

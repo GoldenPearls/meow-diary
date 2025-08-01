@@ -10,7 +10,7 @@ class AiQuery : BaseEntity() {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0
+    var id: Long = 0
     
     @NotBlank
     @Column(name = "query", columnDefinition = "TEXT", nullable = false)

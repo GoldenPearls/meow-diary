@@ -83,4 +83,26 @@ class FileUtil {
     fun getFileUrl(filePath: String): String {
         return "/api/files/$filePath"
     }
+    
+    fun uploadImage(file: MultipartFile, subDirectory: String): String {
+        if (!isValidImageFile(file)) {
+            throw IllegalArgumentException("지원하지 않는 이미지 형식입니다. jpg, jpeg, png, gif, webp 파일만 업로드 가능합니다.")
+        }
+        
+        if (file.size > 5 * 1024 * 1024) { // 5MB 제한
+            throw IllegalArgumentException("이미지 크기는 5MB 이하여야 합니다.")
+        }
+        
+        val fileName = generateUniqueFileName(file.originalFilename)
+        val subDirPath = Paths.get(uploadDir, subDirectory)
+        
+        if (!Files.exists(subDirPath)) {
+            Files.createDirectories(subDirPath)
+        }
+        
+        val filePath = subDirPath.resolve(fileName)
+        file.transferTo(filePath.toFile())
+        
+        return "/uploads/$subDirectory/$fileName"
+    }
 } 

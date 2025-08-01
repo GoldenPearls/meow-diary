@@ -20,6 +20,7 @@ class DataInitializer(
                 username = "testuser"
                 email = "test@example.com"
                 password = passwordEncoder.encode("password123")
+                nickname = "테스트닉네임"
                 firstName = "테스트"
                 lastName = "사용자"
                 phone = "010-1234-5678"

@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${title}">고양이 기록 - MeowDiary</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <!-- 네비게이션 바 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="fas fa-cat"></i> MeowDiary
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="fas fa-home"></i
+                ><span class="d-none d-md-inline"> 홈</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/cats">
+                <i class="fas fa-cat"></i
+                ><span class="d-none d-md-inline"> 내고양이</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/mypage">
+                <i class="fas fa-user"></i
+                ><span class="d-none d-md-inline"> 마이페이지</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/community">
+                <i class="fas fa-comments"></i
+                ><span class="d-none d-md-inline"> 커뮤니티</span>
+              </a>
+            </li>
+          </ul>
+
+          <div class="d-flex align-items-center">
+            <div class="dropdown d-none d-md-block">
+              <button
+                class="btn btn-outline-primary dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-user"></i>
+                <span id="username">사용자</span>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/mypage">마이페이지</a></li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="#" onclick="logout()"
+                    >로그아웃</a
+                  >
+                </li>
+              </ul>
+            </div>
+            <button class="btn btn-outline-danger d-md-none" onclick="logout()">
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="container mt-5 pt-5">
+      <!-- 고양이 정보 헤더 -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card shadow">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-md-3 text-center">
+                  <div class="cat-avatar mb-3" id="catAvatar">
+                    <i class="fas fa-cat"></i>
+                  </div>
+                  <h4 id="catName">고양이 이름</h4>
+                  <p class="text-muted" id="catBreed">품종</p>
+                </div>
+                <div class="col-md-9">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <p><strong>색상:</strong> <span id="catColor">-</span></p>
+                      <p>
+                        <strong>생년월일:</strong>
+                        <span id="catBirthDate">-</span>
+                      </p>
+                      <p>
+                        <strong>체중:</strong> <span id="catWeight">-</span>
+                      </p>
+                    </div>
+                    <div class="col-md-6">
+                      <p>
+                        <strong>성별:</strong> <span id="catGender">-</span>
+                      </p>
+                      <p>
+                        <strong>중성화:</strong> <span id="catNeutered">-</span>
+                      </p>
+                      <p><strong>나이:</strong> <span id="catAge">-</span></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 기록 탭 -->
+      <ul class="nav nav-tabs mb-4" id="recordsTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link active"
+            id="health-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#health"
+            type="button"
+            role="tab"
+          >
+            <i class="fas fa-heartbeat"></i> 건강기록
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="meal-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#meal"
+            type="button"
+            role="tab"
+          >
+            <i class="fas fa-utensils"></i> 식사기록
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="daily-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#daily"
+            type="button"
+            role="tab"
+          >
+            <i class="fas fa-calendar-day"></i> 일상기록
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="gallery-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#gallery"
+            type="button"
+            role="tab"
+          >
+            <i class="fas fa-images"></i> 갤러리
+          </button>
+        </li>
+      </ul>
+
+      <!-- 탭 콘텐츠 -->
+      <div class="tab-content" id="recordsTabContent">
+        <!-- 건강기록 탭 -->
+        <div class="tab-pane fade show active" id="health" role="tabpanel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4><i class="fas fa-heartbeat"></i> 건강기록</h4>
+            <button class="btn btn-primary" onclick="addHealthRecord()">
+              <i class="fas fa-plus"></i> 건강기록 추가
+            </button>
+          </div>
+          <div id="healthRecordsList">
+            <!-- 건강기록들이 여기에 동적으로 추가됩니다 -->
+          </div>
+        </div>
+
+        <!-- 식사기록 탭 -->
+        <div class="tab-pane fade" id="meal" role="tabpanel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4><i class="fas fa-utensils"></i> 식사기록</h4>
+            <button class="btn btn-primary" onclick="addMealRecord()">
+              <i class="fas fa-plus"></i> 식사기록 추가
+            </button>
+          </div>
+          <div id="mealRecordsList">
+            <!-- 식사기록들이 여기에 동적으로 추가됩니다 -->
+          </div>
+        </div>
+
+        <!-- 일상기록 탭 -->
+        <div class="tab-pane fade" id="daily" role="tabpanel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4><i class="fas fa-calendar-day"></i> 일상기록</h4>
+            <button class="btn btn-primary" onclick="addDailyRecord()">
+              <i class="fas fa-plus"></i> 일상기록 추가
+            </button>
+          </div>
+          <div id="dailyRecordsList">
+            <!-- 일상기록들이 여기에 동적으로 추가됩니다 -->
+          </div>
+        </div>
+
+        <!-- 갤러리 탭 -->
+        <div class="tab-pane fade" id="gallery" role="tabpanel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4><i class="fas fa-images"></i> 갤러리</h4>
+            <button class="btn btn-primary" onclick="addGalleryImage()">
+              <i class="fas fa-plus"></i> 사진 추가
+            </button>
+          </div>
+          <div id="galleryList" class="row">
+            <!-- 갤러리 이미지들이 여기에 동적으로 추가됩니다 -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="bg-light mt-5 py-4">
+      <div class="container text-center">
+        <p class="mb-0">
+          <i class="fas fa-cat"></i>
+          MeowDiary - 고양이와 함께하는 건강한 일상 🐾
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+      let currentCatId = null;
+      let currentUserId = null;
+      let catInfo = null;
+
+      // 인증 확인
+      function checkAuth() {
+        const token = localStorage.getItem("authToken");
+        const userId = localStorage.getItem("userId");
+
+        if (!token || !userId) {
+          showToast("로그인이 필요합니다.", "error");
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 1000);
+          return false;
+        }
+
+        currentUserId = userId;
+        return true;
+      }
+
+      // 고양이 정보 로드
+      async function loadCatInfo() {
+        if (!checkAuth()) return;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        currentCatId = window.location.pathname.split("/")[2]; // /cat/{catId}/records
+
+        try {
+          const response = await fetch(`/api/cats/${currentCatId}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          });
+
+          if (response.ok) {
+            catInfo = await response.json();
+            displayCatInfo();
+            loadHealthRecords();
+            loadMealRecords();
+            loadDailyRecords();
+            loadGallery();
+          } else {
+            showToast("고양이 정보를 불러올 수 없습니다.", "error");
+          }
+        } catch (error) {
+          console.error("Error loading cat info:", error);
+          showToast("고양이 정보를 불러올 수 없습니다.", "error");
+        }
+      }
+
+      // 고양이 정보 표시
+      function displayCatInfo() {
+        if (!catInfo) return;
+
+        document.getElementById("catName").textContent = catInfo.name;
+        document.getElementById("catBreed").textContent =
+          catInfo.breed || "품종 미상";
+        document.getElementById("catColor").textContent = catInfo.color || "-";
+        document.getElementById("catBirthDate").textContent =
+          catInfo.birthDate || "-";
+        document.getElementById("catWeight").textContent = catInfo.weight
+          ? `${catInfo.weight}kg`
+          : "-";
+        document.getElementById("catGender").textContent =
+          catInfo.gender === "MALE"
+            ? "수컷"
+            : catInfo.gender === "FEMALE"
+            ? "암컷"
+            : "-";
+        document.getElementById("catNeutered").textContent = catInfo.isNeutered
+          ? "완료"
+          : "미완료";
+        document.getElementById("catAge").textContent = calculateAge(
+          catInfo.birthDate
+        );
+
+        // 고양이 이미지 표시
+        const catAvatar = document.getElementById("catAvatar");
+        if (catInfo.profileImageUrl) {
+          catAvatar.innerHTML = `<img src="${catInfo.profileImageUrl}" alt="${catInfo.name}" class="img-fluid rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">`;
+        } else {
+          catAvatar.innerHTML = '<i class="fas fa-cat"></i>';
+        }
+      }
+
+      // 나이 계산
+      function calculateAge(birthDate) {
+        if (!birthDate) return "?";
+        const birth = new Date(birthDate);
+        const today = new Date();
+        const age = today.getFullYear() - birth.getFullYear();
+        return `${age}세`;
+      }
+
+      // 건강기록 로드
+      async function loadHealthRecords() {
+        try {
+          const response = await fetch(
+            `/api/health-records/cat/${currentCatId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+              },
+            }
+          );
+
+          if (response.ok) {
+            const records = await response.json();
+            renderHealthRecords(records);
+          }
+        } catch (error) {
+          console.error("Error loading health records:", error);
+        }
+      }
+
+      // 건강기록 렌더링
+      function renderHealthRecords(records) {
+        const container = document.getElementById("healthRecordsList");
+
+        if (records.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-5">
+              <i class="fas fa-heartbeat fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">아직 건강기록이 없어요</h5>
+              <p class="text-muted">첫 번째 건강기록을 추가해보세요!</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = records
+          .map(
+            (record) => `
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-8">
+                  <h6 class="card-title">${record.title}</h6>
+                  <p class="card-text">${record.description}</p>
+                  <small class="text-muted">${record.recordDate}</small>
+                </div>
+                <div class="col-md-4 text-end">
+                  <span class="badge bg-${getHealthStatusColor(
+                    record.status
+                  )}">${record.status}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      // 건강상태 색상
+      function getHealthStatusColor(status) {
+        switch (status) {
+          case "NORMAL":
+            return "success";
+          case "SICK":
+            return "danger";
+          case "RECOVERING":
+            return "warning";
+          case "CRITICAL":
+            return "danger";
+          default:
+            return "secondary";
+        }
+      }
+
+      // 식사기록 로드
+      async function loadMealRecords() {
+        try {
+          const response = await fetch(
+            `/api/meal-records/cat/${currentCatId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+              },
+            }
+          );
+
+          if (response.ok) {
+            const records = await response.json();
+            renderMealRecords(records);
+          }
+        } catch (error) {
+          console.error("Error loading meal records:", error);
+        }
+      }
+
+      // 식사기록 렌더링
+      function renderMealRecords(records) {
+        const container = document.getElementById("mealRecordsList");
+
+        if (records.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-5">
+              <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">아직 식사기록이 없어요</h5>
+              <p class="text-muted">첫 번째 식사기록을 추가해보세요!</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = records
+          .map(
+            (record) => `
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-8">
+                  <h6 class="card-title">${record.foodName}</h6>
+                  <p class="card-text">${record.description}</p>
+                  <small class="text-muted">${record.mealDate} - ${record.mealType}</small>
+                </div>
+                <div class="col-md-4 text-end">
+                  <span class="badge bg-info">${record.amount}g</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      // 일상기록 로드
+      async function loadDailyRecords() {
+        try {
+          const response = await fetch(
+            `/api/daily-records/cat/${currentCatId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+              },
+            }
+          );
+
+          if (response.ok) {
+            const records = await response.json();
+            renderDailyRecords(records);
+          }
+        } catch (error) {
+          console.error("Error loading daily records:", error);
+        }
+      }
+
+      // 일상기록 렌더링
+      function renderDailyRecords(records) {
+        const container = document.getElementById("dailyRecordsList");
+
+        if (records.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-5">
+              <i class="fas fa-calendar-day fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">아직 일상기록이 없어요</h5>
+              <p class="text-muted">첫 번째 일상기록을 추가해보세요!</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = records
+          .map(
+            (record) => `
+          <div class="card mb-3">
+            <div class="card-body">
+              <h6 class="card-title">${record.title}</h6>
+              <p class="card-text">${record.content}</p>
+              <small class="text-muted">${record.recordDate}</small>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      // 갤러리 로드
+      async function loadGallery() {
+        try {
+          const response = await fetch(`/api/images/cat/${currentCatId}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          });
+
+          if (response.ok) {
+            const images = await response.json();
+            renderGallery(images);
+          }
+        } catch (error) {
+          console.error("Error loading gallery:", error);
+        }
+      }
+
+      // 갤러리 렌더링
+      function renderGallery(images) {
+        const container = document.getElementById("galleryList");
+
+        if (images.length === 0) {
+          container.innerHTML = `
+            <div class="col-12 text-center py-5">
+              <i class="fas fa-images fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">아직 사진이 없어요</h5>
+              <p class="text-muted">첫 번째 사진을 추가해보세요!</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = images
+          .map(
+            (image) => `
+          <div class="col-md-4 col-lg-3 mb-3">
+            <div class="card">
+              <img src="${
+                image.imageUrl
+              }" class="card-img-top" alt="고양이 사진" style="height: 200px; object-fit: cover;">
+              <div class="card-body">
+                <p class="card-text">${image.description || ""}</p>
+                <small class="text-muted">${image.uploadDate}</small>
+              </div>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      // 기록 추가 함수들
+      function addHealthRecord() {
+        showToast("건강기록 추가 기능은 준비 중입니다.", "info");
+      }
+
+      function addMealRecord() {
+        showToast("식사기록 추가 기능은 준비 중입니다.", "info");
+      }
+
+      function addDailyRecord() {
+        showToast("일상기록 추가 기능은 준비 중입니다.", "info");
+      }
+
+      function addGalleryImage() {
+        showToast("갤러리 추가 기능은 준비 중입니다.", "info");
+      }
+
+      // 로그아웃 함수
+      function logout() {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("username");
+        showToast("로그아웃되었습니다.", "info");
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 1000);
+      }
+
+      // 사용자 정보 표시
+      function displayUserInfo() {
+        const username = localStorage.getItem("username");
+        if (username) {
+          document.getElementById("username").textContent = username;
+        }
+      }
+
+      // 페이지 로드 시 초기화
+      document.addEventListener("DOMContentLoaded", function () {
+        displayUserInfo();
+        loadCatInfo();
+      });
+    </script>
+  </body>
+</html>

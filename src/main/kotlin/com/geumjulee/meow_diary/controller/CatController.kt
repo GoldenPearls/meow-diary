@@ -8,6 +8,7 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/cats")
@@ -16,9 +17,30 @@ class CatController(
 ) {
     
     @PostMapping
-    fun createCat(@RequestParam userId: Long, @Valid @RequestBody request: CatCreateRequest): ResponseEntity<CatResponse> {
+    fun createCat(
+        @RequestParam userId: Long, 
+        @RequestParam name: String,
+        @RequestParam(required = false) breed: String?,
+        @RequestParam(required = false) color: String?,
+        @RequestParam(required = false) birthDate: String?,
+        @RequestParam(required = false) weight: Double?,
+        @RequestParam(required = false) gender: String?,
+        @RequestParam(required = false) isNeutered: Boolean?,
+        @RequestParam(required = false) description: String?,
+        @RequestParam(required = false) image: MultipartFile?
+    ): ResponseEntity<CatResponse> {
         // TODO: 실제로는 토큰에서 사용자 ID를 추출해야 함
-        val cat = catService.createCat(userId, request)
+        val request = CatCreateRequest(
+            name = name,
+            breed = breed,
+            color = color,
+            birthDate = birthDate?.let { java.time.LocalDate.parse(it) },
+            weight = weight,
+            gender = gender?.let { com.geumjulee.meow_diary.entity.CatGender.valueOf(it.uppercase()) },
+            isNeutered = isNeutered ?: false,
+            description = description
+        )
+        val cat = catService.createCat(userId, request, image)
         return ResponseEntity.status(HttpStatus.CREATED).body(cat)
     }
     

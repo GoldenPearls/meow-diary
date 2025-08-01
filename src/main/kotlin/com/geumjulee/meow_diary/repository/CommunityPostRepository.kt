@@ -33,4 +33,13 @@ interface CommunityPostRepository : JpaRepository<CommunityPost, Long> {
     
     @Query("SELECT cp FROM CommunityPost cp WHERE cp.likeCount >= :minLikes AND cp.isDeleted = false ORDER BY cp.likeCount DESC")
     fun findPopularPosts(@Param("minLikes") minLikes: Int, pageable: Pageable): Page<CommunityPost>
+    
+    // 새로운 메서드들
+    fun findAllByOrderByCreatedAtDesc(pageable: Pageable): Page<CommunityPost>
+    
+    fun findByTitleContainingOrContentContaining(title: String, content: String, pageable: Pageable): Page<CommunityPost>
+    
+    fun findByTitleContainingAndCategory(title: String, category: String, pageable: Pageable): Page<CommunityPost>
+    
+    fun findByCategory(category: String, pageable: Pageable): Page<CommunityPost>
 } 

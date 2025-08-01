@@ -10,7 +10,7 @@ class CommunityPost : BaseEntity() {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0
+    var id: Long = 0
     
     @NotBlank
     @Column(name = "title", nullable = false)
@@ -44,13 +44,13 @@ class CommunityPost : BaseEntity() {
     var user: User? = null
     
     @OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val comments: MutableList<CommunityComment> = mutableListOf()
+    var comments: MutableList<CommunityComment> = mutableListOf()
     
     @OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val likes: MutableList<CommunityLike> = mutableListOf()
+    var likes: MutableList<CommunityLike> = mutableListOf()
     
     @OneToMany(mappedBy = "communityPost", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val images: MutableList<Image> = mutableListOf()
+    var images: MutableList<Image> = mutableListOf()
 }
 
 enum class PostCategory {

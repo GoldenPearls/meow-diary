@@ -10,7 +10,7 @@ class MealRecord : BaseEntity() {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0
+    var id: Long = 0
     
     @NotNull
     @Column(name = "meal_date", nullable = false)
@@ -51,7 +51,7 @@ class MealRecord : BaseEntity() {
     var cat: Cat? = null
     
     @OneToMany(mappedBy = "mealRecord", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val images: MutableList<Image> = mutableListOf()
+    var images: MutableList<Image> = mutableListOf()
 }
 
 enum class FoodType {

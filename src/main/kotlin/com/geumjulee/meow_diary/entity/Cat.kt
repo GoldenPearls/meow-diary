@@ -11,7 +11,7 @@ class Cat : BaseEntity() {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0
+    var id: Long = 0
     
     @NotBlank
     @Column(name = "name", nullable = false)
@@ -48,13 +48,13 @@ class Cat : BaseEntity() {
     var user: User? = null
     
     @OneToMany(mappedBy = "cat", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val healthRecords: MutableList<HealthRecord> = mutableListOf()
+    var healthRecords: MutableList<HealthRecord> = mutableListOf()
     
     @OneToMany(mappedBy = "cat", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val mealRecords: MutableList<MealRecord> = mutableListOf()
+    var mealRecords: MutableList<MealRecord> = mutableListOf()
     
     @OneToMany(mappedBy = "cat", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val images: MutableList<Image> = mutableListOf()
+    var images: MutableList<Image> = mutableListOf()
 }
 
 enum class CatGender {

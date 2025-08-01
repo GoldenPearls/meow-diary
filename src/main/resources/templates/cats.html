@@ -39,6 +39,12 @@
               </a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" href="/mypage">
+                <i class="fas fa-user"></i>
+                <span class="d-none d-md-inline">마이페이지</span>
+              </a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" href="/health">
                 <i class="fas fa-heartbeat"></i>
                 <span class="d-none d-md-inline">건강 기록</span>
@@ -218,6 +224,19 @@
                 </div>
               </div>
               <div class="mb-3">
+                <label for="catImage" class="form-label">고양이 사진</label>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="catImage"
+                  name="image"
+                  accept="image/*"
+                />
+                <div class="form-text">
+                  jpg, jpeg, png, gif, webp 파일만 업로드 가능합니다. (최대 5MB)
+                </div>
+              </div>
+              <div class="mb-3">
                 <label for="catDescription" class="form-label">특이사항</label>
                 <textarea
                   class="form-control"
@@ -262,7 +281,7 @@
           <div class="modal-body">
             <div class="row">
               <div class="col-md-4 text-center">
-                <div class="cat-avatar mb-3">
+                <div class="cat-avatar mb-3" id="catDetailAvatar">
                   <i class="fas fa-cat"></i>
                 </div>
                 <h4 id="catDetailName2"></h4>
@@ -395,7 +414,11 @@
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="cat-card p-4 h-100">
                         <div class="cat-avatar">
-                            <i class="fas fa-cat"></i>
+                            ${
+                              cat.profileImageUrl
+                                ? `<img src="${cat.profileImageUrl}" alt="${cat.name}" class="img-fluid rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">`
+                                : '<i class="fas fa-cat"></i>'
+                            }
                         </div>
                         <h5 class="text-center mb-3">${cat.name}</h5>
                         <div class="text-center mb-3">
@@ -426,7 +449,12 @@
                             })">
                                 <i class="fas fa-eye"></i> 상세보기
                             </button>
-                            <button class="btn btn-outline-success btn-sm" onclick="addHealthRecord(${
+                            <button class="btn btn-outline-success btn-sm me-2" onclick="goToCatRecords(${
+                              cat.id
+                            })">
+                                <i class="fas fa-book"></i> 기록보기
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" onclick="addHealthRecord(${
                               cat.id
                             })">
                                 <i class="fas fa-heartbeat"></i> 건강기록
@@ -455,6 +483,14 @@
 
         document.getElementById("catDetailName").textContent = cat.name;
         document.getElementById("catDetailName2").textContent = cat.name;
+
+        // 고양이 이미지 표시
+        const catDetailAvatar = document.getElementById("catDetailAvatar");
+        if (cat.profileImageUrl) {
+          catDetailAvatar.innerHTML = `<img src="${cat.profileImageUrl}" alt="${cat.name}" class="img-fluid rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">`;
+        } else {
+          catDetailAvatar.innerHTML = '<i class="fas fa-cat"></i>';
+        }
         document.getElementById("catDetailBreed").textContent =
           cat.breed || "품종 미상";
         document.getElementById("catDetailColor").textContent =
@@ -483,6 +519,14 @@
         modal.show();
       }
 
+      // 고양이 기록 페이지로 이동
+      function goToCatRecords(catId) {
+        showToast("고양이 기록 페이지로 이동합니다...", "info");
+        setTimeout(() => {
+          window.location.href = `/cat/${catId}/records`;
+        }, 1000);
+      }
+
       // 건강 기록 추가
       function addHealthRecord(catId) {
         showToast("건강 기록 페이지로 이동합니다...", "info");
@@ -500,25 +544,35 @@
           if (!checkAuth()) return;
 
           const formData = new FormData(this);
-          const catData = {
-            name: formData.get("name"),
-            breed: formData.get("breed") || null,
-            color: formData.get("color") || null,
-            birthDate: formData.get("birthDate") || null,
-            weight: parseFloat(formData.get("weight")) || null,
-            gender: formData.get("gender") || null,
-            isNeutered: formData.get("isNeutered") === "on",
-            description: formData.get("description") || null,
-          };
+          const formDataToSend = new FormData();
+          formDataToSend.append("userId", currentUserId);
+          formDataToSend.append("name", formData.get("name"));
+          formDataToSend.append("breed", formData.get("breed") || "");
+          formDataToSend.append("color", formData.get("color") || "");
+          formDataToSend.append("birthDate", formData.get("birthDate") || "");
+          formDataToSend.append("weight", formData.get("weight") || "");
+          formDataToSend.append("gender", formData.get("gender") || "");
+          formDataToSend.append(
+            "isNeutered",
+            formData.get("isNeutered") === "on" ? "true" : "false"
+          );
+          formDataToSend.append(
+            "description",
+            formData.get("description") || ""
+          );
+
+          const imageFile = formData.get("image");
+          if (imageFile && imageFile.size > 0) {
+            formDataToSend.append("image", imageFile);
+          }
 
           try {
             const response = await fetch(`/api/cats?userId=${currentUserId}`, {
               method: "POST",
               headers: {
-                "Content-Type": "application/json",
                 Authorization: `Bearer ${localStorage.getItem("authToken")}`,
               },
-              body: JSON.stringify(catData),
+              body: formDataToSend,
             });
 
             if (response.ok) {

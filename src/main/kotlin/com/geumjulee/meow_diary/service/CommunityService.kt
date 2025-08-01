@@ -1,155 +1,159 @@
 package com.geumjulee.meow_diary.service
 
 import com.geumjulee.meow_diary.dto.*
-import com.geumjulee.meow_diary.entity.CommunityComment
-import com.geumjulee.meow_diary.entity.CommunityLike
-import com.geumjulee.meow_diary.entity.CommunityPost
-import com.geumjulee.meow_diary.entity.LikeType
-import com.geumjulee.meow_diary.repository.CommunityPostRepository
-import com.geumjulee.meow_diary.repository.UserRepository
+import com.geumjulee.meow_diary.entity.*
+import com.geumjulee.meow_diary.repository.*
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
+import java.time.LocalDateTime
 
 @Service
 @Transactional
 class CommunityService(
     private val communityPostRepository: CommunityPostRepository,
-    private val userRepository: UserRepository
+    private val communityCommentRepository: CommunityCommentRepository,
+    private val communityLikeRepository: CommunityLikeRepository,
+    private val userRepository: UserRepository,
+    private val imageRepository: ImageRepository
 ) {
-    
-    fun createPost(userId: Long, request: PostCreateRequest): PostResponse {
-        val user = userRepository.findById(userId)
-            .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다") }
+
+    fun getPosts(pageable: Pageable, search: String?, category: String?): Page<PostResponse> {
+        val posts = when {
+            !search.isNullOrBlank() && !category.isNullOrBlank() -> {
+                communityPostRepository.findByTitleContainingAndCategory(search, category, pageable)
+            }
+            !search.isNullOrBlank() -> {
+                communityPostRepository.findByTitleContainingOrContentContaining(search, search, pageable)
+            }
+            !category.isNullOrBlank() -> {
+                communityPostRepository.findByCategory(category, pageable)
+            }
+            else -> {
+                communityPostRepository.findAllByOrderByCreatedAtDesc(pageable)
+            }
+        }
         
+        return posts.map { post ->
+            val commentCount = communityCommentRepository.countByPost(post)
+            val likeCount = communityLikeRepository.countByPost(post)
+            PostResponse.from(post)
+        }
+    }
+
+    fun createPost(request: PostCreateRequest, image: MultipartFile?): PostResponse {
+        // TODO: 실제로는 토큰에서 사용자 ID를 추출해야 함
+        val userId = 1L // 임시로 고정
+        val user = userRepository.findById(userId)
+            .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다.") }
+
         val post = CommunityPost().apply {
             title = request.title
             content = request.content
             category = request.category
             this.user = user
-            viewCount = 0
-            likeCount = 0
-            commentCount = 0
-            isPinned = false
-            isDeleted = false
         }
-        
+
         val savedPost = communityPostRepository.save(post)
+
+        // 이미지 처리
+        image?.let { img ->
+            val imageEntity = Image().apply {
+                originalFileName = img.originalFilename ?: ""
+                fileName = "${System.currentTimeMillis()}_${img.originalFilename}"
+                filePath = "/uploads/community/${savedPost.id}/"
+                contentType = img.contentType ?: "image/jpeg"
+                fileSize = img.size
+                this.user = user
+                communityPost = savedPost
+            }
+            imageRepository.save(imageEntity)
+        }
+
         return PostResponse.from(savedPost)
     }
-    
-    @Transactional(readOnly = true)
-    fun getPostById(id: Long): PostResponse {
-        val post = communityPostRepository.findById(id)
-            .orElseThrow { IllegalArgumentException("게시글을 찾을 수 없습니다") }
-        
-        if (post.isDeleted) {
-            throw IllegalArgumentException("삭제된 게시글입니다")
-        }
-        
-        // 조회수 증가
-        post.viewCount++
-        communityPostRepository.save(post)
-        
-        return PostResponse.from(post)
-    }
-    
-    @Transactional(readOnly = true)
-    fun getAllPosts(pageable: Pageable): Page<PostResponse> {
-        return communityPostRepository.findAllActivePosts(pageable)
-            .map { PostResponse.from(it) }
-    }
-    
-    @Transactional(readOnly = true)
-    fun getPostsByCategory(category: String, pageable: Pageable): Page<PostResponse> {
-        return communityPostRepository.findByCategoryAndNotDeleted(category, pageable)
-            .map { PostResponse.from(it) }
-    }
-    
-    @Transactional(readOnly = true)
-    fun searchPosts(keyword: String, pageable: Pageable): Page<PostResponse> {
-        return communityPostRepository.searchByKeyword(keyword, pageable)
-            .map { PostResponse.from(it) }
-    }
-    
-    @Transactional(readOnly = true)
-    fun getPostsByUserId(userId: Long, pageable: Pageable): Page<PostResponse> {
-        return communityPostRepository.findByUserIdAndNotDeleted(userId, pageable)
-            .map { PostResponse.from(it) }
-    }
-    
-    @Transactional(readOnly = true)
-    fun getPopularPosts(minLikes: Int, pageable: Pageable): Page<PostResponse> {
-        return communityPostRepository.findPopularPosts(minLikes, pageable)
-            .map { PostResponse.from(it) }
-    }
-    
-    fun updatePost(id: Long, userId: Long, request: PostUpdateRequest): PostResponse {
-        val post = communityPostRepository.findById(id)
-            .orElseThrow { IllegalArgumentException("게시글을 찾을 수 없습니다") }
-        
-        if (post.user?.id != userId) {
-            throw IllegalArgumentException("게시글을 수정할 권한이 없습니다")
-        }
-        
-        if (post.isDeleted) {
-            throw IllegalArgumentException("삭제된 게시글입니다")
-        }
-        
-        request.title?.let { post.title = it }
-        request.content?.let { post.content = it }
-        request.category?.let { post.category = it }
-        
-        val updatedPost = communityPostRepository.save(post)
-        return PostResponse.from(updatedPost)
-    }
-    
-    fun deletePost(id: Long, userId: Long) {
-        val post = communityPostRepository.findById(id)
-            .orElseThrow { IllegalArgumentException("게시글을 찾을 수 없습니다") }
-        
-        if (post.user?.id != userId) {
-            throw IllegalArgumentException("게시글을 삭제할 권한이 없습니다")
-        }
-        
-        post.isDeleted = true
-        communityPostRepository.save(post)
-    }
-    
-    fun likePost(postId: Long, userId: Long, likeType: LikeType = LikeType.LIKE) {
+
+    fun getComments(postId: Long): List<CommentResponse> {
         val post = communityPostRepository.findById(postId)
-            .orElseThrow { IllegalArgumentException("게시글을 찾을 수 없습니다") }
+            .orElseThrow { IllegalArgumentException("게시글을 찾을 수 없습니다.") }
         
+        return communityCommentRepository.findByPostOrderByCreatedAtDesc(post)
+            .map { comment ->
+                CommentResponse(
+                    id = comment.id,
+                    content = comment.content,
+                    likeCount = 0, // TODO: 댓글 좋아요 기능 구현
+                    userId = comment.user?.id ?: 0,
+                    username = comment.user?.username ?: "",
+                    userFullName = "${comment.user?.firstName ?: ""} ${comment.user?.lastName ?: ""}".trim(),
+                    parentCommentId = comment.parentComment?.id,
+                    createdAt = comment.createdAt,
+                    updatedAt = comment.updatedAt
+                )
+            }
+    }
+
+    fun createComment(postId: Long, request: CommentCreateRequest): CommentResponse {
+        // TODO: 실제로는 토큰에서 사용자 ID를 추출해야 함
+        val userId = 1L // 임시로 고정
         val user = userRepository.findById(userId)
-            .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다") }
+            .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다.") }
         
-        // 이미 좋아요를 눌렀는지 확인
-        val existingLike = post.likes.find { it.user?.id == userId }
-        if (existingLike != null) {
-            throw IllegalArgumentException("이미 좋아요를 눌렀습니다")
-        }
-        
-        val like = CommunityLike().apply {
+        val post = communityPostRepository.findById(postId)
+            .orElseThrow { IllegalArgumentException("게시글을 찾을 수 없습니다.") }
+
+        val comment = CommunityComment().apply {
+            content = request.content
             this.post = post
             this.user = user
-            this.likeType = likeType
         }
-        
-        post.likes.add(like)
-        post.likeCount++
-        communityPostRepository.save(post)
+
+        val savedComment = communityCommentRepository.save(comment)
+        return CommentResponse(
+            id = savedComment.id,
+            content = savedComment.content,
+            likeCount = 0,
+            userId = savedComment.user?.id ?: 0,
+            username = savedComment.user?.username ?: "",
+            userFullName = "${savedComment.user?.firstName ?: ""} ${savedComment.user?.lastName ?: ""}".trim(),
+            parentCommentId = savedComment.parentComment?.id,
+            createdAt = savedComment.createdAt,
+            updatedAt = savedComment.updatedAt
+        )
     }
-    
-    fun unlikePost(postId: Long, userId: Long) {
+
+    fun likePost(postId: Long) {
+        // TODO: 실제로는 토큰에서 사용자 ID를 추출해야 함
+        val userId = 1L // 임시로 고정
+        val user = userRepository.findById(userId)
+            .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다.") }
+        
         val post = communityPostRepository.findById(postId)
-            .orElseThrow { IllegalArgumentException("게시글을 찾을 수 없습니다") }
+            .orElseThrow { IllegalArgumentException("게시글을 찾을 수 없습니다.") }
+
+        val existingLike = communityLikeRepository.findByPostAndUser(post, user)
+        if (existingLike == null) {
+            val like = CommunityLike().apply {
+                this.post = post
+                this.user = user
+                likeType = LikeType.LIKE
+            }
+            communityLikeRepository.save(like)
+        }
+    }
+
+    fun unlikePost(postId: Long) {
+        // TODO: 실제로는 토큰에서 사용자 ID를 추출해야 함
+        val userId = 1L // 임시로 고정
+        val user = userRepository.findById(userId)
+            .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다.") }
         
-        val like = post.likes.find { it.user?.id == userId }
-            ?: throw IllegalArgumentException("좋아요를 누르지 않았습니다")
-        
-        post.likes.remove(like)
-        post.likeCount--
-        communityPostRepository.save(post)
+        val post = communityPostRepository.findById(postId)
+            .orElseThrow { IllegalArgumentException("게시글을 찾을 수 없습니다.") }
+
+        val like = communityLikeRepository.findByPostAndUser(post, user)
+        like?.let { communityLikeRepository.delete(it) }
     }
 } 

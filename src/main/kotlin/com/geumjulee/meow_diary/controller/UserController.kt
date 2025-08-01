@@ -1,8 +1,6 @@
 package com.geumjulee.meow_diary.controller
 
-import com.geumjulee.meow_diary.dto.UserRegistrationRequest
-import com.geumjulee.meow_diary.dto.UserResponse
-import com.geumjulee.meow_diary.dto.UserUpdateRequest
+import com.geumjulee.meow_diary.dto.*
 import com.geumjulee.meow_diary.service.UserService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -19,6 +17,18 @@ class UserController(
     fun registerUser(@Valid @RequestBody request: UserRegistrationRequest): ResponseEntity<UserResponse> {
         val user = userService.registerUser(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(user)
+    }
+
+    @PostMapping("/check-duplicate")
+    fun checkDuplicate(@Valid @RequestBody request: DuplicateCheckRequest): ResponseEntity<DuplicateCheckResponse> {
+        val result = userService.checkDuplicate(request)
+        return ResponseEntity.ok(result)
+    }
+
+    @PostMapping("/verify-email")
+    fun verifyEmail(@Valid @RequestBody request: EmailVerificationRequest): ResponseEntity<EmailVerificationResponse> {
+        val result = userService.verifyEmail(request.token)
+        return ResponseEntity.ok(result)
     }
     
     @GetMapping("/{id}")

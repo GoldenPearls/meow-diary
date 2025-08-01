@@ -9,7 +9,7 @@ class CommunityComment : BaseEntity() {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0
+    var id: Long = 0
     
     @NotBlank
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
@@ -34,5 +34,5 @@ class CommunityComment : BaseEntity() {
     var parentComment: CommunityComment? = null
     
     @OneToMany(mappedBy = "parentComment", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val replies: MutableList<CommunityComment> = mutableListOf()
+    var replies: MutableList<CommunityComment> = mutableListOf()
 } 

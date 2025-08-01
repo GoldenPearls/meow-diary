@@ -6,17 +6,20 @@ import com.geumjulee.meow_diary.dto.CatUpdateRequest
 import com.geumjulee.meow_diary.entity.Cat
 import com.geumjulee.meow_diary.repository.CatRepository
 import com.geumjulee.meow_diary.repository.UserRepository
+import com.geumjulee.meow_diary.util.FileUtil
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 @Transactional
 class CatService(
     private val catRepository: CatRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val fileUtil: FileUtil
 ) {
     
-    fun createCat(userId: Long, request: CatCreateRequest): CatResponse {
+    fun createCat(userId: Long, request: CatCreateRequest, image: MultipartFile? = null): CatResponse {
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다") }
         
@@ -30,6 +33,12 @@ class CatService(
             isNeutered = request.isNeutered
             description = request.description
             this.user = user
+        }
+        
+        // 이미지 업로드 처리
+        if (image != null && !image.isEmpty) {
+            val imageUrl = fileUtil.uploadImage(image, "cats")
+            cat.profileImageUrl = imageUrl
         }
         
         val savedCat = catRepository.save(cat)
