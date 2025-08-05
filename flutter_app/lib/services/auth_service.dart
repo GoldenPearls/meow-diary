@@ -79,6 +79,31 @@ class AuthService {
     }
   }
   
+  Future<LoginResponse> socialLogin(String provider, String accessToken, {String? idToken}) async {
+    try {
+      final requestData = {
+        'provider': provider,
+        'accessToken': accessToken,
+      };
+      
+      if (idToken != null) {
+        requestData['idToken'] = idToken;
+      }
+      
+      final response = await _apiService.post('/auth/social-login', data: requestData);
+      
+      final loginResponse = LoginResponse.fromJson(response.data);
+      
+      // 토큰과 사용자 정보 저장
+      await _apiService.saveToken(loginResponse.token);
+      await _saveUserInfo(loginResponse);
+      
+      return loginResponse;
+    } catch (e) {
+      throw Exception('소셜 로그인에 실패했습니다: $e');
+    }
+  }
+  
   Future<void> _saveUserInfo(LoginResponse loginResponse) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('user_id', loginResponse.userId);

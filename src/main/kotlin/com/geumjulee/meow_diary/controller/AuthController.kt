@@ -128,4 +128,15 @@ class AuthController(
                 .body(ApiResponse.error<UserResponse>(e.message ?: "인증이 필요합니다"))
         }
     }
+    
+    @PostMapping("/social-login")
+    fun socialLogin(@Valid @RequestBody request: SocialLoginRequest): ResponseEntity<ApiResponse<LoginResponse>> {
+        return try {
+            val loginResult = authService.socialLogin(request)
+            ResponseEntity.ok(ApiResponse.success(loginResult, "소셜 로그인이 완료되었습니다"))
+        } catch (e: Exception) {
+            ResponseEntity.badRequest()
+                .body(ApiResponse.error<LoginResponse>(e.message ?: "소셜 로그인에 실패했습니다"))
+        }
+    }
 } 

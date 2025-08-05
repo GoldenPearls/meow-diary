@@ -106,4 +106,36 @@ class AuthProvider with ChangeNotifier {
       throw Exception(e.toString());
     }
   }
+  
+  Future<bool> socialLogin(String provider, String accessToken, {String? idToken}) async {
+    _isLoading = true;
+    notifyListeners();
+    
+    try {
+      final loginResponse = await _authService.socialLogin(provider, accessToken, idToken: idToken);
+      _currentUser = User(
+        id: loginResponse.userId,
+        username: loginResponse.username,
+        nickname: loginResponse.nickname,
+        firstName: loginResponse.firstName,
+        lastName: loginResponse.lastName,
+        email: loginResponse.email,
+        phone: null,
+        address: null,
+        isActive: true,
+        emailVerified: loginResponse.emailVerified,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      _isLoggedIn = true;
+      
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      throw Exception(e.toString());
+    }
+  }
 }

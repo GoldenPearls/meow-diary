@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cat_provider.dart';
 import 'cats/cats_screen.dart';
+import 'cats/pet_icon_selection_screen.dart';
 import 'health/health_records_screen.dart';
 import 'community/community_screen.dart';
 import 'profile/profile_screen.dart';
@@ -19,7 +20,6 @@ class _HomeScreenState extends State<HomeScreen> {
   
   final List<Widget> _screens = [
     const HomeTabScreen(),
-    const CatsScreen(),
     const HealthRecordsScreen(),
     const CommunityScreen(),
     const ProfileScreen(),
@@ -52,23 +52,19 @@ class _HomeScreenState extends State<HomeScreen> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: '홈',
+            label: 'HOME',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.pets),
-            label: '내 고양이',
+            icon: Icon(Icons.calendar_today),
+            label: '건강일기',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: '건강기록',
+            icon: Icon(Icons.trending_up),
+            label: '검사결과',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: '커뮤니티',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: '프로필',
+            icon: Icon(Icons.notifications),
+            label: '알림',
           ),
         ],
       ),
@@ -83,7 +79,7 @@ class HomeTabScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MeowDiary'),
+        title: const Text('집사 일기'),
         actions: [
           Consumer<AuthProvider>(
             builder: (context, authProvider, child) {
@@ -211,74 +207,93 @@ class HomeTabScreen extends StatelessWidget {
                 }
                 
                 if (catProvider.cats.isEmpty) {
-                  return Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        children: [
-                          const Icon(
-                            Icons.pets,
-                            size: 48,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            '아직 등록된 고양이가 없어요',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            '첫 번째 고양이를 등록해보세요!',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              // 고양이 등록 페이지로 이동
-                            },
-                            icon: const Icon(Icons.add),
-                            label: const Text('고양이 등록하기'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+                  return _buildNoPetScreen(context);
                 }
                 
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: catProvider.cats.length > 3 ? 3 : catProvider.cats.length,
-                  itemBuilder: (context, index) {
-                    final cat = catProvider.cats[index];
-                    return Card(
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundImage: cat.profileImageUrl != null
-                              ? NetworkImage(cat.profileImageUrl!)
-                              : null,
-                          child: cat.profileImageUrl == null
-                              ? const Icon(Icons.pets)
-                              : null,
-                        ),
-                        title: Text(cat.name),
-                        subtitle: Text(cat.breed ?? '품종 미상'),
-                        trailing: Text('${cat.age}세'),
-                        onTap: () {
-                          catProvider.selectCat(cat);
-                          // 고양이 상세 페이지로 이동
-                        },
-                      ),
-                    );
-                  },
-                );
+                // 반려동물이 있으면 대시보드 화면으로 이동
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const CatDashboardScreen(),
+                    ),
+                  );
+                });
+                
+                return const Center(child: CircularProgressIndicator());
               },
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildNoPetScreen(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // 귀여운 고양이 아이콘
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.grey[100],
+            ),
+            child: const Icon(
+              Icons.pets,
+              size: 60,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 40),
+          // 메시지
+          const Text(
+            '반려동물이 없습니다.',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 60),
+          // 등록하기 버튼
+          Container(
+            width: 200,
+            height: 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(25),
+              color: Colors.orange[300],
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const PetIconSelectionScreen(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+              ),
+              child: const Text(
+                '등록하기',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

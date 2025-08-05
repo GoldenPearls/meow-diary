@@ -6,48 +6,40 @@ class HealthRecordsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('건강 기록'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              // 건강 기록 추가
-            },
-            icon: const Icon(Icons.add),
-          ),
-        ],
+        title: const Text('건강일기'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.favorite,
+              Icons.calendar_today,
               size: 80,
               color: Colors.grey,
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 24),
             Text(
-              '건강 기록이 없습니다',
+              '건강일기',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.grey,
               ),
             ),
             SizedBox(height: 8),
             Text(
-              '고양이의 건강 정보를 기록해보세요',
-              style: TextStyle(color: Colors.grey),
+              '준비 중입니다',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // 건강 기록 추가
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }

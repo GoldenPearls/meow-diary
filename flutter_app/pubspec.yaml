@@ -26,6 +26,11 @@ dependencies:
   # UI 라이브러리
   cupertino_icons: ^1.0.2
 
+  # 소셜 로그인
+  google_sign_in: ^6.2.1
+  flutter_naver_login: ^1.8.0
+  sign_in_with_apple: ^5.0.0
+
   # JSON 직렬화
   json_annotation: ^4.8.1
 

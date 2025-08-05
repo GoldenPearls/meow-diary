@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // 색상 팔레트
-  static const Color primaryColor = Color(0xFF6C5CE7);
-  static const Color secondaryColor = Color(0xFFA29BFE);
-  static const Color accentColor = Color(0xFFFF7675);
-  static const Color backgroundColor = Color(0xFFF8F9FA);
+  // 색상 팔레트 - 집사 일기 테마
+  static const Color primaryColor = Color(0xFF4CAF50); // 그린
+  static const Color secondaryColor = Color(0xFF81C784); // 라이트 그린
+  static const Color accentColor = Color(0xFFFF9800); // 오렌지
+  static const Color backgroundColor = Color(0xFFFAFAFA);
   static const Color surfaceColor = Color(0xFFFFFFFF);
-  static const Color textColor = Color(0xFF2D3436);
-  static const Color lightTextColor = Color(0xFF636E72);
+  static const Color textColor = Color(0xFF212121);
+  static const Color lightTextColor = Color(0xFF757575);
   
   // 고양이 테마 색상
   static const Color catOrange = Color(0xFFE17055);
@@ -32,14 +32,14 @@ class AppTheme {
         onError: Colors.white,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
+        backgroundColor: surfaceColor,
+        foregroundColor: textColor,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: TextStyle(
-          fontSize: 20,
+          fontSize: 18,
           fontWeight: FontWeight.bold,
-          color: Colors.white,
+          color: textColor,
         ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarTheme(

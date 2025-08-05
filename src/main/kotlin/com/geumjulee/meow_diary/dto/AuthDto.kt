@@ -137,3 +137,34 @@ data class PasswordChangeRequest(
 ) {
     fun isNewPasswordConfirmed(): Boolean = newPassword == confirmNewPassword
 }
+
+// 소셜 로그인 타입
+enum class SocialLoginType {
+    GOOGLE, NAVER, APPLE
+}
+
+// 소셜 로그인 요청
+data class SocialLoginRequest(
+    @field:NotBlank(message = "소셜 로그인 타입은 필수입니다")
+    val provider: String, // "google", "naver", "apple"
+    
+    @field:NotBlank(message = "액세스 토큰은 필수입니다")
+    val accessToken: String,
+    
+    val idToken: String? = null, // Google/Apple ID Token (선택적)
+    
+    val email: String? = null,
+    val name: String? = null,
+    val nickname: String? = null,
+    val profileImageUrl: String? = null
+)
+
+// 소셜 로그인 사용자 정보 (외부 API에서 받아온 정보)
+data class SocialUserInfo(
+    val id: String,
+    val email: String?,
+    val name: String?,
+    val nickname: String?,
+    val profileImageUrl: String?,
+    val provider: SocialLoginType
+)

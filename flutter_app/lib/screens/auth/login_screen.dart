@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_naver_login/flutter_naver_login.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../providers/auth_provider.dart';
 import '../home_screen.dart';
 import 'register_screen.dart';
@@ -16,6 +19,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isGoogleLoading = false;
+  bool _isNaverLoading = false;
+  bool _isAppleLoading = false;
 
   @override
   void dispose() {
@@ -52,6 +58,132 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isGoogleLoading = true;
+    });
+
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
+      
+      if (googleAccount != null) {
+        final GoogleSignInAuthentication googleAuth = await googleAccount.authentication;
+        
+        if (googleAuth.accessToken != null) {
+          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+          await authProvider.socialLogin(
+            'google', 
+            googleAuth.accessToken!,
+            idToken: googleAuth.idToken,
+          );
+          
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+            );
+          }
+        } else {
+          throw Exception('Google 액세스 토큰을 가져올 수 없습니다');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('구글 로그인 실패: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isGoogleLoading = false;
+      });
+    }
+  }
+
+  Future<void> _signInWithNaver() async {
+    setState(() {
+      _isNaverLoading = true;
+    });
+
+    try {
+      final NaverLoginResult result = await FlutterNaverLogin.logIn();
+      
+      if (result.status == NaverLoginStatus.loggedIn && result.accessToken != null) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        await authProvider.socialLogin('naver', result.accessToken!);
+        
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const HomeScreen()),
+          );
+        }
+      } else {
+        throw Exception('네이버 로그인이 취소되었거나 실패했습니다');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('네이버 로그인 실패: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isNaverLoading = false;
+      });
+    }
+  }
+
+  Future<void> _signInWithApple() async {
+    setState(() {
+      _isAppleLoading = true;
+    });
+
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+      
+      if (credential.identityToken != null) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        await authProvider.socialLogin(
+          'apple', 
+          credential.identityToken!,
+          idToken: credential.identityToken,
+        );
+        
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const HomeScreen()),
+          );
+        }
+      } else {
+        throw Exception('Apple ID 토큰을 가져올 수 없습니다');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Apple 로그인 실패: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isAppleLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,33 +201,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const SizedBox(height: 60),
-                        // 로고
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.pets,
-                            size: 50,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
+                        // 집사 일기 타이틀
                         Text(
-                          'MeowDiary',
-                          style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '로그인하여 시작하세요',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.grey[600],
+                          '집사 일기',
+                          style: TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[700],
+                            letterSpacing: 2.0,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -103,10 +216,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         // 아이디 입력
                         TextFormField(
                           controller: _usernameController,
-                          decoration: const InputDecoration(
-                            labelText: '아이디',
-                            hintText: '아이디를 입력하세요',
-                            prefixIcon: Icon(Icons.person),
+                          decoration: InputDecoration(
+                            hintText: '아이디 or 이메일',
+                            hintStyle: TextStyle(color: Colors.grey[400]),
+                            border: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey[300]!),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.green[400]!),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -121,14 +240,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: _passwordController,
                           obscureText: _obscurePassword,
                           decoration: InputDecoration(
-                            labelText: '비밀번호',
-                            hintText: '비밀번호를 입력하세요',
-                            prefixIcon: const Icon(Icons.lock),
+                            hintText: '비밀번호',
+                            hintStyle: TextStyle(color: Colors.grey[400]),
+                            border: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey[300]!),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.green[400]!),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(vertical: 16),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _obscurePassword
                                     ? Icons.visibility
                                     : Icons.visibility_off,
+                                color: Colors.grey[500],
                               ),
                               onPressed: () {
                                 setState(() {
@@ -148,25 +274,79 @@ class _LoginScreenState extends State<LoginScreen> {
                         // 로그인 버튼
                         Consumer<AuthProvider>(
                           builder: (context, authProvider, child) {
-                            return ElevatedButton(
-                              onPressed: authProvider.isLoading ? null : _login,
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                            return Container(
+                              width: double.infinity,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25),
+                                color: Colors.green[400],
                               ),
-                              child: authProvider.isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                            Colors.white),
+                              child: ElevatedButton(
+                                onPressed: authProvider.isLoading ? null : _login,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                ),
+                                child: authProvider.isLoading
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                              Colors.white),
+                                        ),
+                                      )
+                                    : const Text(
+                                        '로그인',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
                                       ),
-                                    )
-                                  : const Text('로그인'),
+                              ),
                             );
                           },
                         ),
+                        const SizedBox(height: 16),
+                        // 아이디찾기 / 비밀번호찾기
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                // TODO: 아이디 찾기 구현
+                              },
+                              child: Text(
+                                '아이디찾기',
+                                style: TextStyle(
+                                  color: Colors.green[400],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            const Text(' / '),
+                            TextButton(
+                              onPressed: () {
+                                // TODO: 비밀번호 찾기 구현
+                              },
+                              child: Text(
+                                '비밀번호찾기',
+                                style: TextStyle(
+                                  color: Colors.green[400],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+                        // 소셜 로그인 버튼들
+                        _buildSocialLoginButtons(),
                       ],
                     ),
                   ),
@@ -176,7 +356,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('계정이 없으신가요? '),
+                  const Text('집사일기가 처음이신가요? '),
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).push(
@@ -185,7 +365,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       );
                     },
-                    child: const Text('회원가입'),
+                    child: Text(
+                      '회원가입',
+                      style: TextStyle(
+                        color: Colors.green[400],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -193,6 +379,135 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSocialLoginButtons() {
+    return Column(
+      children: [
+        // Apple 로그인 버튼
+        Container(
+          width: double.infinity,
+          height: 50,
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ElevatedButton.icon(
+            onPressed: _isAppleLoading ? null : _signInWithApple,
+            icon: _isAppleLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Icon(Icons.apple, color: Colors.white),
+            label: Text(
+              _isAppleLoading ? '로그인 중...' : 'Apple 계정으로 로그인',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+            ),
+          ),
+        ),
+        // Google 로그인 버튼
+        Container(
+          width: double.infinity,
+          height: 50,
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ElevatedButton.icon(
+            onPressed: _isGoogleLoading ? null : _signInWithGoogle,
+            icon: _isGoogleLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                    ),
+                  )
+                : const Text('G', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red)),
+            label: Text(
+              _isGoogleLoading ? '로그인 중...' : 'Google 계정으로 로그인',
+              style: const TextStyle(
+                color: Colors.black87,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              side: BorderSide(color: Colors.grey[300]!),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+            ),
+          ),
+        ),
+        // Naver 로그인 버튼
+        Container(
+          width: double.infinity,
+          height: 50,
+          margin: const EdgeInsets.only(bottom: 16),
+          child: ElevatedButton.icon(
+            onPressed: _isNaverLoading ? null : _signInWithNaver,
+            icon: _isNaverLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Text('N', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+            label: Text(
+              _isNaverLoading ? '로그인 중...' : '네이버 계정으로 로그인',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF03C75A),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+            ),
+          ),
+        ),
+        // 혹시, 로그인이 안되시나요?
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 16,
+                color: Colors.green[400],
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '혹시, 로그인이 안되시나요?',
+                style: TextStyle(
+                  color: Colors.green[400],
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
