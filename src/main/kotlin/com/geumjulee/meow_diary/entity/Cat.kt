@@ -23,7 +23,6 @@ class Cat : BaseEntity() {
     @Column(name = "color")
     var color: String? = null
     
-    @NotNull
     @Column(name = "birth_date")
     var birthDate: LocalDate? = null
     

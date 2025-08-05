@@ -44,6 +44,15 @@ class CatController(
         return ResponseEntity.status(HttpStatus.CREATED).body(cat)
     }
     
+    @PostMapping("/json")
+    fun createCatWithJson(
+        @RequestParam userId: Long,
+        @Valid @RequestBody request: CatCreateRequest
+    ): ResponseEntity<CatResponse> {
+        val cat = catService.createCat(userId, request, null)
+        return ResponseEntity.status(HttpStatus.CREATED).body(cat)
+    }
+    
     @GetMapping("/{id}")
     fun getCatById(@PathVariable id: Long): ResponseEntity<CatResponse> {
         val cat = catService.getCatById(id)
