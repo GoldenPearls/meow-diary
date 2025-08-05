@@ -60,6 +60,9 @@ class User : BaseEntity() {
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER
     
+    @Column(name = "last_login_at")
+    var lastLoginAt: java.time.LocalDateTime? = null
+    
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     var cats: MutableList<Cat> = mutableListOf()
     

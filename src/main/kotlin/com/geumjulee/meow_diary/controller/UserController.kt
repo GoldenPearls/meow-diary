@@ -27,8 +27,8 @@ class UserController(
 
     @PostMapping("/verify-email")
     fun verifyEmail(@Valid @RequestBody request: EmailVerificationRequest): ResponseEntity<EmailVerificationResponse> {
-        val result = userService.verifyEmail(request.token)
-        return ResponseEntity.ok(result)
+        // 이 메서드는 더 이상 사용되지 않습니다. AuthController의 verify-email을 사용하세요.
+        return ResponseEntity.ok(EmailVerificationResponse(false, "더 이상 지원되지 않는 엔드포인트입니다"))
     }
     
     @GetMapping("/{id}")

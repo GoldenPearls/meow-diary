@@ -20,6 +20,8 @@ interface UserRepository : JpaRepository<User, Long> {
     
     fun existsByNickname(nickname: String): Boolean
     
+    fun existsByEmailAndIdNot(email: String, id: Long): Boolean
+    
     fun findByEmailVerificationToken(token: String): User?
     
     @Query("SELECT u FROM User u WHERE u.isActive = true")

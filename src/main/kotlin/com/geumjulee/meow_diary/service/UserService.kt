@@ -67,14 +67,18 @@ class UserService(
         val token = UUID.randomUUID().toString()
         
         return LoginResponse(
-            token = token,
-            userId = user.id,
-            username = user.username,
-            nickname = user.nickname,
-            firstName = user.firstName,
-            lastName = user.lastName,
-            email = user.email,
-            emailVerified = user.emailVerified
+            accessToken = token,
+            refreshToken = token, // 임시로 같은 토큰 사용
+            expiresIn = 86400,
+            user = UserSummary(
+                id = user.id,
+                username = user.username,
+                nickname = user.nickname,
+                email = user.email,
+                emailVerified = user.emailVerified,
+                firstName = user.firstName,
+                lastName = user.lastName
+            )
         )
     }
 

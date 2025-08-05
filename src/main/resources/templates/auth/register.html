@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>회원가입 - MeowDiary</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="/css/style.css" rel="stylesheet" />
+    <style>
+      .register-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px 20px;
+      }
+
+      .register-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      .register-header {
+        background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .register-header .cat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      .register-body {
+        padding: 30px;
+      }
+
+      .form-floating {
+        margin-bottom: 15px;
+      }
+
+      .form-floating .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+      }
+
+      .form-floating .form-control:focus {
+        border-color: #6c5ce7;
+        box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
+      }
+
+      .form-floating .form-control.is-valid {
+        border-color: #28a745;
+      }
+
+      .form-floating .form-control.is-invalid {
+        border-color: #dc3545;
+      }
+
+      .input-group-append {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 5;
+      }
+
+      .btn-check-duplicate {
+        border-radius: 8px;
+        font-size: 0.8rem;
+        padding: 8px 12px;
+      }
+
+      .btn-send-code {
+        border-radius: 8px;
+        font-size: 0.8rem;
+        padding: 8px 12px;
+      }
+
+      .valid-feedback,
+      .invalid-feedback {
+        font-size: 0.875rem;
+        margin-top: 5px;
+      }
+
+      .password-requirements {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        font-size: 0.875rem;
+      }
+
+      .requirement {
+        margin-bottom: 5px;
+        color: #6c757d;
+      }
+
+      .requirement.valid {
+        color: #28a745;
+      }
+
+      .requirement i {
+        margin-right: 8px;
+        width: 12px;
+      }
+
+      .btn-register {
+        background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+        border: none;
+        border-radius: 12px;
+        height: 50px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+      }
+
+      .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+      }
+
+      .progress-container {
+        margin-bottom: 20px;
+      }
+
+      .progress {
+        height: 6px;
+        border-radius: 3px;
+        background: #e9ecef;
+      }
+
+      .progress-bar {
+        background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+        transition: width 0.3s ease;
+      }
+
+      .step-indicator {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        color: #6c757d;
+      }
+
+      .email-verification-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 2px dashed #6c5ce7;
+      }
+
+      .verification-timer {
+        color: #dc3545;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="register-container">
+      <div class="register-card">
+        <div class="register-header">
+          <div class="cat-icon">
+            <i class="fas fa-cat"></i>
+          </div>
+          <h2 class="mb-0">회원가입</h2>
+          <p class="mb-0 mt-2 opacity-75">MeowDiary와 함께 시작하세요</p>
+        </div>
+
+        <div class="register-body">
+          <div class="progress-container">
+            <div class="progress">
+              <div
+                class="progress-bar"
+                id="progressBar"
+                style="width: 0%"
+              ></div>
+            </div>
+            <div class="step-indicator mt-2">
+              <span id="stepText">기본 정보 입력</span>
+            </div>
+          </div>
+
+          <div id="error-alert" class="alert alert-danger d-none" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span id="error-message"></span>
+          </div>
+
+          <form id="registerForm">
+            <!-- Step 1: 기본 정보 -->
+            <div id="step1" class="step-content">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-floating position-relative">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="username"
+                      name="username"
+                      placeholder="아이디"
+                      required
+                    />
+                    <label for="username">
+                      <i class="fas fa-user me-2"></i>아이디 *
+                    </label>
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary btn-check-duplicate"
+                      id="checkUsernameBtn"
+                    >
+                      중복확인
+                    </button>
+                    <div class="invalid-feedback"></div>
+                    <div class="valid-feedback"></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="nickname"
+                      name="nickname"
+                      placeholder="닉네임"
+                      required
+                    />
+                    <label for="nickname">
+                      <i class="fas fa-tag me-2"></i>닉네임 *
+                    </label>
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary btn-check-duplicate"
+                      id="checkNicknameBtn"
+                    >
+                      중복확인
+                    </button>
+                    <div class="invalid-feedback"></div>
+                    <div class="valid-feedback"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="lastName"
+                      name="lastName"
+                      placeholder="성"
+                      required
+                    />
+                    <label for="lastName">
+                      <i class="fas fa-user me-2"></i>성 *
+                    </label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="firstName"
+                      name="firstName"
+                      placeholder="이름"
+                      required
+                    />
+                    <label for="firstName">
+                      <i class="fas fa-user me-2"></i>이름 *
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-floating">
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="phone"
+                  name="phone"
+                  placeholder="전화번호 (선택)"
+                />
+                <label for="phone">
+                  <i class="fas fa-phone me-2"></i>전화번호 (선택)
+                </label>
+                <small class="form-text text-muted"
+                  >010-0000-0000 형식으로 입력해주세요</small
+                >
+              </div>
+
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="address"
+                  name="address"
+                  placeholder="주소 (선택)"
+                />
+                <label for="address">
+                  <i class="fas fa-map-marker-alt me-2"></i>주소 (선택)
+                </label>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-primary btn-register w-100"
+                id="nextToStep2"
+              >
+                다음 단계
+                <i class="fas fa-arrow-right ms-2"></i>
+              </button>
+            </div>
+
+            <!-- Step 2: 이메일 인증 -->
+            <div id="step2" class="step-content d-none">
+              <div class="form-floating position-relative">
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  name="email"
+                  placeholder="이메일"
+                  required
+                />
+                <label for="email">
+                  <i class="fas fa-envelope me-2"></i>이메일 *
+                </label>
+                <button
+                  type="button"
+                  class="btn btn-outline-primary btn-send-code"
+                  id="sendCodeBtn"
+                >
+                  인증번호 발송
+                </button>
+                <div class="invalid-feedback"></div>
+                <div class="valid-feedback"></div>
+              </div>
+
+              <div
+                class="email-verification-section d-none"
+                id="verificationSection"
+              >
+                <h6><i class="fas fa-shield-alt me-2"></i>이메일 인증</h6>
+                <p class="mb-3">
+                  입력하신 이메일로 6자리 인증번호를 발송했습니다.
+                </p>
+
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="emailVerificationCode"
+                    name="emailVerificationCode"
+                    placeholder="인증번호"
+                    maxlength="6"
+                  />
+                  <label for="emailVerificationCode">
+                    <i class="fas fa-key me-2"></i>인증번호 (6자리)
+                  </label>
+                </div>
+
+                <div
+                  class="d-flex justify-content-between align-items-center mt-3"
+                >
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm"
+                    id="resendCodeBtn"
+                  >
+                    <i class="fas fa-redo me-1"></i>재발송
+                  </button>
+                  <span class="verification-timer" id="timer"></span>
+                </div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary flex-fill"
+                  id="backToStep1"
+                >
+                  <i class="fas fa-arrow-left me-2"></i>이전
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-register flex-fill"
+                  id="nextToStep3"
+                >
+                  다음 단계
+                  <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 3: 비밀번호 설정 -->
+            <div id="step3" class="step-content d-none">
+              <div class="password-requirements">
+                <h6><i class="fas fa-lock me-2"></i>비밀번호 요구사항</h6>
+                <div class="requirement" id="lengthReq">
+                  <i class="fas fa-times text-danger"></i>8자 이상
+                </div>
+                <div class="requirement" id="uppercaseReq">
+                  <i class="fas fa-times text-danger"></i>대문자 포함
+                </div>
+                <div class="requirement" id="lowercaseReq">
+                  <i class="fas fa-times text-danger"></i>소문자 포함
+                </div>
+                <div class="requirement" id="numberReq">
+                  <i class="fas fa-times text-danger"></i>숫자 포함
+                </div>
+                <div class="requirement" id="specialReq">
+                  <i class="fas fa-times text-danger"></i>특수문자 포함
+                </div>
+              </div>
+
+              <div class="form-floating">
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  name="password"
+                  placeholder="비밀번호"
+                  required
+                />
+                <label for="password">
+                  <i class="fas fa-lock me-2"></i>비밀번호 *
+                </label>
+              </div>
+
+              <div class="form-floating">
+                <input
+                  type="password"
+                  class="form-control"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="비밀번호 확인"
+                  required
+                />
+                <label for="confirmPassword">
+                  <i class="fas fa-lock me-2"></i>비밀번호 확인 *
+                </label>
+                <div class="invalid-feedback"></div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary flex-fill"
+                  id="backToStep2"
+                >
+                  <i class="fas fa-arrow-left me-2"></i>이전
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-success btn-register flex-fill"
+                  id="submitBtn"
+                >
+                  <span
+                    class="loading-spinner spinner-border spinner-border-sm me-2 d-none"
+                  ></span>
+                  <span class="btn-text">
+                    <i class="fas fa-user-plus me-2"></i>회원가입 완료
+                  </span>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div class="text-center mt-3">
+            <p class="mb-0">
+              이미 계정이 있으신가요?
+              <a href="/login" class="text-decoration-none">
+                <i class="fas fa-sign-in-alt me-1"></i>로그인
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let currentStep = 1;
+      let verificationTimer;
+      let timerSeconds = 600; // 10분
+
+      // 단계별 유효성 검사 상태
+      const validationState = {
+        username: false,
+        nickname: false,
+        email: false,
+        emailVerified: false,
+        password: false,
+      };
+
+      // 단계 전환
+      function showStep(step) {
+        document.querySelectorAll(".step-content").forEach((content) => {
+          content.classList.add("d-none");
+        });
+        document.getElementById(`step${step}`).classList.remove("d-none");
+
+        const progress = (step - 1) * 50;
+        document.getElementById("progressBar").style.width = `${progress}%`;
+
+        const stepTexts = {
+          1: "기본 정보 입력",
+          2: "이메일 인증",
+          3: "비밀번호 설정",
+        };
+        document.getElementById("stepText").textContent = stepTexts[step];
+
+        currentStep = step;
+      }
+
+      // 중복 확인
+      async function checkDuplicate(type, value, inputElement) {
+        if (!value.trim()) return;
+
+        try {
+          const response = await fetch("/api/auth/check-duplicate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type, value }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            const isDuplicate = result.data.isDuplicate;
+
+            if (isDuplicate) {
+              inputElement.classList.add("is-invalid");
+              inputElement.classList.remove("is-valid");
+              inputElement.nextElementSibling.nextElementSibling.textContent =
+                result.data.message;
+              validationState[type] = false;
+            } else {
+              inputElement.classList.add("is-valid");
+              inputElement.classList.remove("is-invalid");
+              inputElement.nextElementSibling.nextElementSibling.nextElementSibling.textContent =
+                result.data.message;
+              validationState[type] = true;
+            }
+          }
+        } catch (error) {
+          console.error("중복 확인 오류:", error);
+        }
+      }
+
+      // 이메일 인증번호 발송
+      async function sendVerificationCode() {
+        const email = document.getElementById("email").value;
+        if (!email) return;
+
+        try {
+          const response = await fetch("/api/auth/send-email-verification", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            document
+              .getElementById("verificationSection")
+              .classList.remove("d-none");
+            startTimer();
+            showSuccessMessage("인증번호가 발송되었습니다!");
+          } else {
+            throw new Error(result.message);
+          }
+        } catch (error) {
+          showErrorMessage(error.message);
+        }
+      }
+
+      // 이메일 인증번호 확인
+      async function verifyEmailCode() {
+        const email = document.getElementById("email").value;
+        const code = document.getElementById("emailVerificationCode").value;
+
+        if (!email || !code) return false;
+
+        try {
+          const response = await fetch("/api/auth/verify-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, verificationCode: code }),
+          });
+
+          const result = await response.json();
+
+          if (result.success && result.data) {
+            validationState.emailVerified = true;
+            document
+              .getElementById("emailVerificationCode")
+              .classList.add("is-valid");
+            showSuccessMessage("이메일 인증이 완료되었습니다!");
+            clearInterval(verificationTimer);
+            return true;
+          } else {
+            document
+              .getElementById("emailVerificationCode")
+              .classList.add("is-invalid");
+            return false;
+          }
+        } catch (error) {
+          return false;
+        }
+      }
+
+      // 타이머 시작
+      function startTimer() {
+        timerSeconds = 600;
+        const timerElement = document.getElementById("timer");
+
+        verificationTimer = setInterval(() => {
+          const minutes = Math.floor(timerSeconds / 60);
+          const seconds = timerSeconds % 60;
+          timerElement.textContent = `${minutes}:${seconds
+            .toString()
+            .padStart(2, "0")}`;
+
+          if (timerSeconds <= 0) {
+            clearInterval(verificationTimer);
+            timerElement.textContent = "시간 만료";
+            document
+              .getElementById("verificationSection")
+              .classList.add("d-none");
+          }
+
+          timerSeconds--;
+        }, 1000);
+      }
+
+      // 비밀번호 유효성 검사
+      function validatePassword(password) {
+        const requirements = {
+          length: password.length >= 8,
+          uppercase: /[A-Z]/.test(password),
+          lowercase: /[a-z]/.test(password),
+          number: /\d/.test(password),
+          special: /[@$!%*?&]/.test(password),
+        };
+
+        // UI 업데이트
+        Object.keys(requirements).forEach((key) => {
+          const element = document.getElementById(`${key}Req`);
+          const icon = element.querySelector("i");
+
+          if (requirements[key]) {
+            icon.className = "fas fa-check text-success";
+            element.classList.add("valid");
+          } else {
+            icon.className = "fas fa-times text-danger";
+            element.classList.remove("valid");
+          }
+        });
+
+        return Object.values(requirements).every((req) => req);
+      }
+
+      // 이벤트 리스너
+      document.addEventListener("DOMContentLoaded", function () {
+        // 중복 확인 버튼
+        document
+          .getElementById("checkUsernameBtn")
+          .addEventListener("click", function () {
+            const username = document.getElementById("username").value;
+            checkDuplicate(
+              "username",
+              username,
+              document.getElementById("username")
+            );
+          });
+
+        document
+          .getElementById("checkNicknameBtn")
+          .addEventListener("click", function () {
+            const nickname = document.getElementById("nickname").value;
+            checkDuplicate(
+              "nickname",
+              nickname,
+              document.getElementById("nickname")
+            );
+          });
+
+        // 이메일 인증 관련
+        document
+          .getElementById("sendCodeBtn")
+          .addEventListener("click", sendVerificationCode);
+        document
+          .getElementById("resendCodeBtn")
+          .addEventListener("click", sendVerificationCode);
+
+        document
+          .getElementById("emailVerificationCode")
+          .addEventListener("input", function () {
+            if (this.value.length === 6) {
+              verifyEmailCode();
+            }
+          });
+
+        // 비밀번호 유효성 검사
+        document
+          .getElementById("password")
+          .addEventListener("input", function () {
+            validationState.password = validatePassword(this.value);
+          });
+
+        document
+          .getElementById("confirmPassword")
+          .addEventListener("input", function () {
+            const password = document.getElementById("password").value;
+            if (this.value !== password) {
+              this.classList.add("is-invalid");
+              this.nextElementSibling.textContent =
+                "비밀번호가 일치하지 않습니다";
+            } else {
+              this.classList.remove("is-invalid");
+              this.classList.add("is-valid");
+            }
+          });
+
+        // 단계 이동 버튼
+        document
+          .getElementById("nextToStep2")
+          .addEventListener("click", function () {
+            if (validationState.username && validationState.nickname) {
+              showStep(2);
+            } else {
+              showErrorMessage("아이디와 닉네임 중복확인을 완료해주세요");
+            }
+          });
+
+        document
+          .getElementById("nextToStep3")
+          .addEventListener("click", function () {
+            if (validationState.emailVerified) {
+              showStep(3);
+            } else {
+              showErrorMessage("이메일 인증을 완료해주세요");
+            }
+          });
+
+        document
+          .getElementById("backToStep1")
+          .addEventListener("click", () => showStep(1));
+        document
+          .getElementById("backToStep2")
+          .addEventListener("click", () => showStep(2));
+
+        // 폼 제출
+        document
+          .getElementById("registerForm")
+          .addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            if (!validationState.password) {
+              showErrorMessage("비밀번호 요구사항을 만족해주세요");
+              return;
+            }
+
+            const formData = new FormData(e.target);
+            const registerData = {
+              username: formData.get("username"),
+              password: formData.get("password"),
+              confirmPassword: formData.get("confirmPassword"),
+              nickname: formData.get("nickname"),
+              firstName: formData.get("firstName"),
+              lastName: formData.get("lastName"),
+              email: formData.get("email"),
+              phone: formData.get("phone") || null,
+              address: formData.get("address") || null,
+              emailVerificationCode: formData.get("emailVerificationCode"),
+            };
+
+            const submitBtn = document.getElementById("submitBtn");
+            submitBtn
+              .querySelector(".loading-spinner")
+              .classList.remove("d-none");
+            submitBtn.disabled = true;
+
+            try {
+              const response = await fetch("/api/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(registerData),
+              });
+
+              const result = await response.json();
+
+              if (result.success) {
+                showSuccessMessage(
+                  "회원가입이 완료되었습니다! 로그인 페이지로 이동합니다."
+                );
+                setTimeout(() => {
+                  window.location.href = "/login";
+                }, 2000);
+              } else {
+                throw new Error(result.message);
+              }
+            } catch (error) {
+              showErrorMessage(error.message);
+            } finally {
+              submitBtn
+                .querySelector(".loading-spinner")
+                .classList.add("d-none");
+              submitBtn.disabled = false;
+            }
+          });
+      });
+
+      function showErrorMessage(message) {
+        const errorAlert = document.getElementById("error-alert");
+        const errorMessage = document.getElementById("error-message");
+        errorMessage.textContent = message;
+        errorAlert.classList.remove("d-none");
+
+        setTimeout(() => {
+          errorAlert.classList.add("d-none");
+        }, 5000);
+      }
+
+      function showSuccessMessage(message) {
+        const successAlert = document.createElement("div");
+        successAlert.className = "alert alert-success";
+        successAlert.innerHTML = `<i class="fas fa-check-circle me-2"></i>${message}`;
+        successAlert.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+                color: white;
+                border: none;
+                border-radius: 12px;
+            `;
+
+        document.body.appendChild(successAlert);
+
+        setTimeout(() => {
+          successAlert.remove();
+        }, 5000);
+      }
+    </script>
+  </body>
+</html>
